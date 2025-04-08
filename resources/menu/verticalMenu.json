@@ -1,0 +1,56 @@
+{
+  "menu": [
+    {
+      "name": "Dashboard",
+      "icon": "menu-icon tf-icons bx bx-home",
+      "slug": "dashboard",
+      "url": ""
+    },
+    {
+      "url": "/",
+      "name": "Tables",
+      "icon": "menu-icon tf-icons bx bx-folder",
+      "slug": "dashboard",
+      "submenu": [
+        {
+          "url": "/",
+          "name": "Table 1",
+          "slug": "table1"
+        },
+        {
+          "url": "/table2",
+          "name": "Table 2",
+          "slug": "table2"
+        }
+      ]
+    },
+    {
+      "url": "/hhh",
+      "name": "Weather",
+      "icon": "menu-icon tf-icons bx bx-folder",
+      "slug": "hhhh",
+      "submenu": [
+        {
+          "url": "/weather",
+          "name": "Weather",
+          "slug": ""
+        }
+      ]
+    },
+    {
+      "menuHeader": "User Section"
+    },
+    {
+      "name": "Users",
+      "icon": "menu-icon tf-icons bx bx-food-menu",
+      "slug": "user-management",
+      "url": "user-management"
+    },
+    {
+      "name": "Permission",
+      "icon": "menu-icon tf-icons bx bx-food-menu",
+      "slug": "permission",
+      "url": "roles"
+    }
+  ]
+}
