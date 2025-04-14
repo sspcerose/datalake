@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Illuminate\Support\LazyCollection;
 
 use Illuminate\Support\Facades\File;
 
@@ -671,16 +672,16 @@ public function processBatch(Request $request)
     
         // Check if this is the last chunk
         if ($index + 1 == $totalChunks) {
-            return $this->mergeChunksAndProcess($fileName);
+            return $this->mergeChunksAndProcess($fileName, $tempPath);
         }
     
         return response()->json(['success' => true]);
         
     }
 
-    private function mergeChunksAndProcess($fileName)
+    private function mergeChunksAndProcess($fileName, $tempPath)
 {
-
+    // dd('I am here');
     // $tempPath = storage_path("app/temp_chunks/{$fileName}");
     // $finalFilePath = storage_path("app/uploads/{$fileName}");
 
@@ -709,10 +710,60 @@ public function processBatch(Request $request)
     // Delete chunk files
     File::deleteDirectory($tempPath);
 
-    // ✅ Dispatch job to handle file processing
+    // For job dispatching
     ProcessFileUploadJob::dispatch($fileName);
 
+    // return $this->callDataInsertion($finalFilePath);
+
     return response()->json(['success' => true, 'message' => 'File uploaded and queued for processing.']);
+}
+
+private function callDataInsertion($finalFilePath){
+
+    if (!file_exists($finalFilePath)) {
+        \Log::error("File {$finalFilePath} not found before processing.");
+        return response()->json(['error' => "File {$finalFilePath} not found."], 404);
+    }
+    // dd($finalFilePath);
+    
+    $chunkSize = 500;
+    $insertedRows = 0;
+
+    DB::beginTransaction();
+    try {
+        LazyCollection::make(function () use ($finalFilePath) {
+            return response()->json(['error' => "File {$finalFilePath} not found I am here outside."], 404);
+            $handle = fopen($finalFilePath, 'r');
+            fgetcsv($handle); // Skip header row
+            while (($row = fgetcsv($handle)) !== false) {
+                yield $row;
+            }
+            fclose($handle);
+        })
+        ->chunk($chunkSize)
+        ->each(function ($rows) use (&$insertedRows) {
+            $dataBatch = collect($rows)->map(fn($row) => $this->mapRowData($row))->filter()->toArray();
+
+            if (!empty($dataBatch)) {
+                $insertedRows += $this->insertBatchWeather($dataBatch);
+                unset($dataBatch);
+            }
+        });
+
+        DB::commit();
+        \Log::info("CSV Import Successful! {$insertedRows} rows inserted.");
+        unlink($finalFilePath); // Delete file after processing
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        \Log::error("CSV Import Failed: {$e->getMessage()}");
+    }
+
+    return response()->json(['success' => true, 'message' => 'File processed successfully.']);
+}
+    
+
+private function processDataInsertion(){
+
 }
 
 private function processUploadedFile($filePath)
@@ -755,29 +806,36 @@ private function processUploadedFile($filePath)
 
 private function mapRowData($row)
 {
-    set_time_limit(300);
+    if (empty($row)) return null;
+
     return [
         'id'                  => $row[0] ?? null,
         'city_mun_code'       => $row[1] ?? null,
         'ave_min'             => is_numeric($row[2]) ? (float) $row[2] : null,
         'ave_max'             => is_numeric($row[3]) ? (float) $row[3] : null,
         'ave_mean'            => is_numeric($row[4]) ? (float) $row[4] : null,
-        'rainfall_mm'         => is_numeric($row[5]) ? (float) $row[5] : null,
+        'rainfall_mm'         => $row[5] ?? null,
         'rainfall_description'=> $row[6] ?? null,
         'cloud_cover'         => $row[7] ?? null,
         'humidity'            => is_numeric($row[8]) ? (float) $row[8] : null,
-        'forecast_date' => isset($row[9]) && preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $row[9])
-            ? Carbon::createFromFormat('d/m/Y', $row[9])->format('Y-m-d')
-            : null,
-        'date_accessed' => isset($row[10]) && preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $row[10])
-            ? Carbon::createFromFormat('d/m/Y', $row[10])->format('Y-m-d')
-            : null,
+        'forecast_date'       => $row[9] ?? null,
+        'date_accessed'       => $row[10] ?? null,
         'wind_mps'            => is_numeric($row[11]) ? (float) $row[11] : null,
         'direction'           => $row[12] ?? null,
-        'created_at'          => Carbon::now(),
-        'updated_at'          => Carbon::now(),
+        'created_at'          => now(),
+        'updated_at'          => now(),
     ];
-    
+}
+
+private function insertBatchWeather(array $data): int
+{
+    try {
+        DB::table('weather')->insert($data);
+        return count($data);
+    } catch (\Exception $e) {
+        \Log::error("Database Insert Error: {$e->getMessage()}");
+        throw $e;
+    }
 }
 
 }

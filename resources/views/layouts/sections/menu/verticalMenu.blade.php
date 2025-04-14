@@ -76,13 +76,13 @@
     @foreach ($menuData[0]->menu as $menu)
 
         {{-- Skip menu based on user type --}}
-        @if (Auth::user() && !Auth::user()->hasPermission('View User') && isset($menu->name) && $menu->name === 'Users')
+        @if (Auth::user() && !Auth::user()->hasPermission('View Users') && isset($menu->name) && $menu->name === 'Users')
             @continue
         @elseif (Auth::user() && !Auth::user()->hasPermission('View Roles') && isset($menu->name) && $menu->name === 'Permission')
            @continue
         @elseif (Auth::user() && !Auth::user()->hasPermission('View Weather') && isset($menu->name) && $menu->name === 'Weather')
            @continue
-        @elseif (Auth::user() && !Auth::user()->hasPermission('View Table1') && isset($menu->name) && $menu->name === 'Tables')
+        @elseif (Auth::user() && !Auth::user()->hasPermission('View Histories') && isset($menu->name) && $menu->name === 'Tables')
             @continue
         @endif
 

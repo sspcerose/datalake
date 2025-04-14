@@ -17,15 +17,13 @@
             <i class="bx bx-plus-circle me-2"></i> Add
         </a>
         <a class="btn btn-warning btn-sm d-flex align-items-center me-3" href="{{ route('role.edit') }}">
-            <i class="bx bx-plus-circle me-2"></i> Edit
+            <i class="bx bx-edit-alt me-2"></i> Edit
         </a>
         @endif
     </div>
-    <div class="col-md-6 d-flex justify-content-end">
-        
-            <!-- Search Input -->
+    <!-- <div class="col-md-6 d-flex justify-content-end">
             <input type="text" id="searchInput" placeholder="Search..." class="p-2 border rounded">
-        </div>
+        </div> -->
     </div>
 </div>
 

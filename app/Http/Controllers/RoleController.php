@@ -69,8 +69,9 @@ class RoleController extends Controller
             // }
 
             // return redirect()->route('roles.index')->with('success', 'Permissions added successfully!');
-            $tables = $request->input('permissionto'); // Selected tables
-            $permissions = $request->input('name'); // Selected permissions
+            $tables = $request->input('tables'); // Selected tables
+            $permissions = $request->input('permissions'); // Selected permissions
+            // dd($tables, $permissions);
             
             if (!$tables || !$permissions) {
                 return back()->with('error', 'Please select at least one table and one permission.');
@@ -81,7 +82,7 @@ class RoleController extends Controller
                     $permissionName = ucfirst($permission) . ' ' . ucfirst($table);
             
                     Permission::firstOrCreate(
-                        ['name' => $permissionName], // Check uniqueness based on 'name'
+                        ['name' => $permissionName],
                         ['permissionto' => $table, 'created_at' => now(), 'updated_at' => now()] // Insert only if not exists
                     );
                 }
@@ -103,12 +104,16 @@ class RoleController extends Controller
             $roles = Role::with('permissions')->get();
 
     // Get permissions grouped by 'permission_to'
-            $groupedPermissions = Permission::orderBy('permissionto')->get()->groupBy('permissionto');
+            $groupedPermissions = Permission::orderBy('permissionto')
+            ->orderBy('name') 
+            ->get()
+            ->groupBy('permissionto');
 
-            // Paginate permissions for better performance
-            $paginatedPermissions = Permission::orderBy('permissionto')->paginate(10);
+            // $paginatedPermissions = Permission::orderBy('permissionto')
+            // ->orderBy('name')
+            // ->paginate(10);;
 
-    return view('content.roles.roles-layout', compact('roles', 'groupedPermissions', 'paginatedPermissions'));
+    return view('content.roles.roles-layout', compact('roles', 'groupedPermissions'));
         }
 
         public function updatePermission(Request $request)

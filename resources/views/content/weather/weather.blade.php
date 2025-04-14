@@ -1,5 +1,6 @@
 @extends('layouts/contentNavbarLayout')
 
+@section('title', 'Weather Table')
 @section('content')
 
 
@@ -88,7 +89,7 @@
             <th style="width: 20%"><x-sortable-column field="forecast_date" label="Forecast Date" route="weather.index" /></th>
             <!-- <th style="width: 20%"><x-sortable-column field="date_accessed" label="Date Accessed" route="weather.index" /></th> -->
             <th style="width: 20%"><x-sortable-column field="wind_mps" label="Wind Speed (m/s)" route="weather.index" /></th>
-            <th style="width: 20%"><x-sortable-column field="Direction" label="Direction" route="weather.index" /></th>
+            <th style="width: 20%"><x-sortable-column field="direction" label="Direction" route="weather.index" /></th>
                     @if(Auth::user()->user_type != 'User Type 1' && Auth::user()->user_type != 'Viewer' )
             <th style="width: 10%">Actions</th>
                     @endif
@@ -421,106 +422,8 @@ $(document).ready(function () {
     reader.readAsText(fileInput); // Read the file as text to preserve line breaks
 });
 
-
 </script>
 
-
-<!-- File Upload -->
-<script>
-//     $('#uploadButton').click(function (e) {
-//     e.preventDefault();
-//     const fileInput = $('#csvFile')[0].files[0];
-
-//     if (!fileInput) {
-//         $('.modal').css('z-index', '1040'); 
-//         $('.modal-backdrop').css('z-index', '1035');
-//         Swal.fire({
-//             icon: 'error',
-//             title: 'Oops...',
-//             text: 'Please select a file to upload!',
-//             didClose: () => {
-//                 $('.modal').css('z-index', '1055');
-//                 $('.modal-backdrop').css('z-index', '1040');
-//             }
-//         });
-//     }
-
-//     let formData = new FormData();
-//     formData.append('file', fileInput);
-
-//     console.log(fileInput);
-    
-//     $('#progressContainer').removeClass('d-none');
-//     $('#progressBar').val(0);
-//     $('#progressText').text('0%');
-
-//     // checkProgress1();
-
-//     $.ajax({
-//         url: '{{ route('import-weather.process') }}',
-//         type: 'POST',
-//         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-//         data: formData,
-//         processData: false,
-//         contentType: false,
-//         success: function (data) {
-            
-//             if (data.success) {
-//                 $('#modalCenter').modal('hide');
-//                 Swal.fire({
-//                     icon: 'success',
-//                     title: 'Upload Successful',
-//                     text: data.message || 'Your file has been uploaded successfully.',
-//                 });
-//                 location.reload();
-//             } else {
-//                 // $('#message').text('Upload failed: ' + data.message).addClass('text-red-500');
-//                 Swal.fire({
-//                     icon: 'error',
-//                     title: 'Upload Failed',
-//                     text: data.message || 'There was a problem with your upload.',
-//                 });
-//             }
-//         },
-//         error: function () {
-//             $('#message').text('An error occurred during upload.').addClass('text-red-500');
-//             console.log(error);
-//         }
-//     });
-
-    
-//     function checkProgress() {
-//         let interval = setInterval(function () {
-//         $.get('{{ route('progress') }}', function (data) {
-//             $('#progressBar').val(data.progress);
-//             $('#progressText').text(data.progress + '%');
-//             console.log('Import Progress:', data.progress + '%');
-
-//             if (data.progress >= 100) {
-//                 clearInterval(interval);
-//                 $('#message').text('File uploaded successfully!').addClass('text-green-500');
-//                 setTimeout(() => location.reload(), 1000); 
-//             }
-//         });
-//     }, 1000); 
-//     }
-
-//     function checkProgress1() {
-//         let progress = 0;
-//         let interval = setInterval(function () {
-//         progress += 5; 
-
-//         $('#progressBar').css('width', progress + '%').attr('aria-valuenow', progress);
-//         $('#progressText').text(progress + '%');
-//         console.log('Import Progress:', progress + '%');
-
-//         if (progress >= 100) {
-//             clearInterval(interval);
-//         }
-//     }, 1500);
-// }
-// });
-</script>
 
 <!-- Alert Message -->
 @if(session('success'))
@@ -560,28 +463,30 @@ $(document).ready(function () {
 });
 </script>
 
-<!-- Real Time Update -->
-
- <!-- Pusher JS -->
+<!-- Real Time Update (In Progress) -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
-<!-- Laravel Echo -->
-<script src="https://cdn.jsdelivr.net/npm/laravel-echo/dist/echo.iife.js"></script>
-<!-- <script>
-    Echo.channel('import-progress')
-        .listen('FileImportProgress', (e) => {
+<script>
+    import Echo from 'laravel-echo';
+
+    window.Pusher = require('pusher-js');
+
+    window.Echo = new Echo({
+        broadcaster: 'pusher',
+        key: '{{ config("broadcasting.connections.pusher.key") }}',
+        cluster: '{{ config("broadcasting.connections.pusher.options.cluster") }}',
+        forceTLS: true,
+    });
+
+    window.Echo.channel('csv-import')
+        .listen('.csv.import.success', (e) => {
             Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'info',
-                title: `Importing ${e.fileName}: ${e.progress}% complete`,
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                customClass: {
-                    popup: 'bg-primary text-white'
-                }
+                title: 'Import Successful!',
+                text: e.message,
+                icon: 'success',
+                confirmButtonText: 'OK'
             });
         });
-</script> -->
+</script>
 
 @endsection

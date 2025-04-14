@@ -1,7 +1,7 @@
 @extends('layouts/contentNavbarLayout')
 
 @section('content')
-@section('title', 'Tables - Basic Tables')
+@section('title', 'Users Table')
 
 
 <!-- Basic Bootstrap Table -->
@@ -11,17 +11,17 @@
     <div class="container mb-3">
       <div class="row align-items-center">
         <div class="col-md-6 d-flex justify-content-start">
-        @if (auth()->user()->hasPermission('Create User'))
-        <a class="btn btn-primary btn-sm d-flex align-items-center me-3" href="{{('user-register')}}">
+        @if (auth()->user()->hasPermission('Create Users'))
+        <a class="btn btn-primary btn-sm d-flex align-items-center me-3" href="{{ route('user-register') }}">
             <i class="bx bx-plus-circle me-2"></i> Add
         </a>
         @endif
-        @if (auth()->user()->hasPermission('Import User'))
+        @if (auth()->user()->hasPermission('Import Users'))
         <button class="btn btn-info btn-sm d-flex align-items-center me-3" id="importButton" data-bs-toggle="modal" data-bs-target="#modalCenter">
             <i class="bx bx-import me-2"></i> Import
         </button>
         @endif
-        @if (auth()->user()->hasPermission('Export User'))
+        @if (auth()->user()->hasPermission('Export Users'))
         <a href="{{ route('export.users1') }}" class="btn btn-warning btn-sm d-flex align-items-center">
             <i class="bx bx-export me-2"></i> Export
         </a>
@@ -29,16 +29,6 @@
         </div>
          <!-- Right Section: Sort, Filter, Search -->
          <div class="col-md-6 d-flex justify-content-end">
-            <!-- Sort Dropdown -->
-            <form action="{{ route('user-management') }}" method="GET" class="d-flex align-items-center me-3">
-                <select name="filter" id="sortDropdown" class="form-select p-2 border rounded" onchange="this.form.submit()">
-                    <option value="">Filter by</option>
-                    <option value="">All</option>
-                    <option value="Super Admin" {{ request('filter') == 'Super Admin' ? 'selected' : '' }}>Super Admin</option>
-                    <option value="Admin" {{ request('filter') == 'Admin' ? 'selected' : '' }}>Admin</option>
-                    <option value="Viewer" {{ request('filter') == 'Viewer' ? 'selected' : '' }}>Viewer</option>
-                </select>
-            </form>
             <!-- Search Input -->
             <input type="text" id="searchInput" placeholder="Search..." class="p-2 border rounded">
         </div>
@@ -90,7 +80,7 @@
           <th><x-sortable-column field="user_type" label="User Type" /></th>
           <th><x-sortable-column field="email" label="Email" /></th>
           <th><x-sortable-column field="status" label="Status" /></th>
-          @if (auth()->user()->hasPermission('View User') || auth()->user()->hasPermission('Update User') || auth()->user()->hasPermission('Delete User'))
+          @if (auth()->user()->hasPermission('View Users') || auth()->user()->hasPermission('Update Users') || auth()->user()->hasPermission('Delete Users'))
           <th>Actions</th>
           @endif
         </tr>
@@ -146,8 +136,8 @@
           <th><x-sortable-column field="user_type" label="User Type"  route="user-management" /></th>
           <th><x-sortable-column field="email" label="Email"  route="user-management" /></th>
           <th><x-sortable-column field="status" label="Status"  route="user-management" /></th>
-          @if(Auth::user()->user_type != 'Admin' && Auth::user()->user_type != 'Viewer')
-            <th>Actions</th>
+          @if (auth()->user()->hasPermission('View Users') || auth()->user()->hasPermission('Update Users') || auth()->user()->hasPermission('Delete Users'))
+          <th>Actions</th>
           @endif
         </tr>
       </thead>
@@ -164,20 +154,20 @@
             <td><span class="badge bg-label-danger me-1">Inactive</span></td>
           @endif
 
-          @if (auth()->user()->hasPermission('View User') || auth()->user()->hasPermission('Update User') || auth()->user()->hasPermission('Delete User'))
+          @if (auth()->user()->hasPermission('View Users') || auth()->user()->hasPermission('Update Users') || auth()->user()->hasPermission('Delete Users'))
           <td>
-           @if (auth()->user()->hasPermission('View User'))
+           @if (auth()->user()->hasPermission('View Users'))
               <div class="d-flex align-items-center">
                 <a href="{{ route('user.show', ['user' => $user->id]) }}" class="text-primary me-2" title="View">
                   <i class='bx bx-show'></i>
                 </a>
             @endif
-            @if (auth()->user()->hasPermission('Update User'))
+            @if (auth()->user()->hasPermission('Update Users'))
                 <a href="{{ route('user.edit', ['user' => $user->id]) }}" class="text-warning me-2" title="Update">
                     <i class="bx bx-edit-alt"></i>
                 </a>
             @endif
-            @if (auth()->user()->hasPermission('Delete User'))
+            @if (auth()->user()->hasPermission('Delete Users'))
                 <form action="{{ route('user.destroy', [$user->id]) }}" method="POST" id="deleteForm{{ $user->id }}" style="display: inline;">
                     @csrf
                     @method('DELETE')

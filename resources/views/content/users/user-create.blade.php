@@ -1,6 +1,6 @@
 @extends('layouts/contentNavbarLayout')
 
-@section('title', ' Horizontal Layouts - Forms')
+@section('title', 'Users')
 
 @section('content')
 
@@ -95,7 +95,7 @@
         <div class="row justify-content-end">
             <div class="col-sm-10">
               <div class="mt-6">
-                <button type="button" class="btn btn-primary me-3" id="confirmAddButton">Add Account</button>
+                <button type="submit" class="btn btn-primary me-3" id="confirmAddButton">Add Account</button>
                 <a href="{{route('user-management')}}" class="btn btn-outline-danger">Cancel</a>
               </div>
             </div>
@@ -133,151 +133,151 @@
 
 <!-- Form Validation -->
 <script>
-$(document).ready(function () {
-    $('#basic-default-username, #basic-default-first_name, #basic-default-last_name, #basic-default-email, #password, #confirmpassword')
-        .on('blur keyup', function () {
-            switch (this.id) {
-                case 'basic-default-username': validateUsername(); break;
-                case 'basic-default-first_name': validateFirstName(); break;
-                case 'basic-default-last_name': validateLastName(); break;
-                case 'basic-default-company': validateUserType(); break;
-                case 'basic-default-email': validateEmail(); break;
-                case 'password': validatePassword(); validateConfirmPassword(); break;
-                case 'confirmpassword': validateConfirmPassword(); break;
-            }
-        });
+// $(document).ready(function () {
+//     $('#basic-default-username, #basic-default-first_name, #basic-default-last_name, #basic-default-email, #password, #confirmpassword')
+//         .on('blur keyup', function () {
+//             switch (this.id) {
+//                 case 'basic-default-username': validateUsername(); break;
+//                 case 'basic-default-first_name': validateFirstName(); break;
+//                 case 'basic-default-last_name': validateLastName(); break;
+//                 case 'basic-default-company': validateUserType(); break;
+//                 case 'basic-default-email': validateEmail(); break;
+//                 case 'password': validatePassword(); validateConfirmPassword(); break;
+//                 case 'confirmpassword': validateConfirmPassword(); break;
+//             }
+//         });
 
-        $('#confirmAddButton').on('click', function (e) {
-        let isValid = true;
+//         $('#confirmAddButton').on('click', function (e) {
+//         let isValid = true;
 
-        validateUsername();
-        validateFirstName();
-        validateLastName();
-        validateEmail();
-        validateUserType();
-        validatePassword();
-        validateConfirmPassword();
+//         validateUsername();
+//         validateFirstName();
+//         validateLastName();
+//         validateEmail();
+//         validateUserType();
+//         validatePassword();
+//         validateConfirmPassword();
 
-        if ($('.text-danger').length > 0) {
-            isValid = false;
-        }
+//         if ($('.text-danger').length > 0) {
+//             isValid = false;
+//         }
 
-        if (!isValid) {
-        e.preventDefault(); 
-        Swal.fire({
-            title: 'Error!',
-            text: 'Please fix all errors before submitting.',
-            icon: 'error',
-            confirmButtonText: 'Okay'
-        });
-        } else {
-            $('#addForm').submit();
-        }
-    });
+//         if (!isValid) {
+//         e.preventDefault(); 
+//         Swal.fire({
+//             title: 'Error!',
+//             text: 'Please fix all errors before submitting.',
+//             icon: 'error',
+//             confirmButtonText: 'Okay'
+//         });
+//         } else {
+//             $('#addForm').submit();
+//         }
+//     });
     
-    function validateFirstName() {
-      let firstName = document.getElementById('basic-default-first_name');
-      let nameValue = firstName.value.trim();
-      let namePattern = /^[A-Za-z\s]{2,30}$/;
+//     function validateFirstName() {
+//       let firstName = document.getElementById('basic-default-first_name');
+//       let nameValue = firstName.value.trim();
+//       let namePattern = /^[A-Za-z\s]{2,30}$/;
 
-      if (!nameValue) {
-          setErrorMessage(firstName, 'First Name field is required');
-      } else if (!namePattern.test(nameValue)) {
-          setErrorMessage(firstName, 'First Name must only contain letters and be 2-30 characters long');
-      } else {
-          clearErrorMessage(firstName);
-      }
-    }
+//       if (!nameValue) {
+//           setErrorMessage(firstName, 'First Name field is required');
+//       } else if (!namePattern.test(nameValue)) {
+//           setErrorMessage(firstName, 'First Name must only contain letters and be 2-30 characters long');
+//       } else {
+//           clearErrorMessage(firstName);
+//       }
+//     }
 
-    function validateLastName() {
-      let lastName = document.getElementById('basic-default-last_name');
-      let nameValue = lastName.value.trim();
-      let namePattern = /^[A-Za-z\s]{2,30}$/;
+//     function validateLastName() {
+//       let lastName = document.getElementById('basic-default-last_name');
+//       let nameValue = lastName.value.trim();
+//       let namePattern = /^[A-Za-z\s]{2,30}$/;
 
-      if (!nameValue) {
-          setErrorMessage(lastName, 'Last Name is required');
-      } else if (!namePattern.test(nameValue)) {
-          setErrorMessage(lastName, 'First Name must only contain letters and be 2-30 characters long');
-      } else {
-          clearErrorMessage(lastName);
-      }
-    }
+//       if (!nameValue) {
+//           setErrorMessage(lastName, 'Last Name is required');
+//       } else if (!namePattern.test(nameValue)) {
+//           setErrorMessage(lastName, 'First Name must only contain letters and be 2-30 characters long');
+//       } else {
+//           clearErrorMessage(lastName);
+//       }
+//     }
 
-    $('#basic-default-company').on('change', function () {
-        validateUserType();
-    });
+//     $('#basic-default-company').on('change', function () {
+//         validateUserType();
+//     });
 
-    function validateUsername() {
-        validateField('basic-default-username', 'Username field is required');
-    }
+//     function validateUsername() {
+//         validateField('basic-default-username', 'Username field is required');
+//     }
 
-    function validateUserType() {
-    let userType = document.getElementById('basic-default-company');
-    let selectedValue = userType.value.trim();
+//     function validateUserType() {
+//     let userType = document.getElementById('basic-default-company');
+//     let selectedValue = userType.value.trim();
 
-      if (!selectedValue) {
-          setErrorMessage(userType, 'Please select a valid User Type');
-      } else {
-          clearErrorMessage(userType);
-      }
-  }
+//       if (!selectedValue) {
+//           setErrorMessage(userType, 'Please select a valid User Type');
+//       } else {
+//           clearErrorMessage(userType);
+//       }
+//   }
 
-    function validateEmail() {
-        let email = document.getElementById('basic-default-email');
-        let emailValue = email.value.trim();
-        let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+//     function validateEmail() {
+//         let email = document.getElementById('basic-default-email');
+//         let emailValue = email.value.trim();
+//         let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-        if (!emailValue) {
-            setErrorMessage(email, 'Email field is required');
-        } else if (!emailPattern.test(emailValue)) {
-            setErrorMessage(email, 'Invalid email address');
-        } else {
-            clearErrorMessage(email);
-        }
-    }
+//         if (!emailValue) {
+//             setErrorMessage(email, 'Email field is required');
+//         } else if (!emailPattern.test(emailValue)) {
+//             setErrorMessage(email, 'Invalid email address');
+//         } else {
+//             clearErrorMessage(email);
+//         }
+//     }
 
-    function validatePassword() {
-        validateField('password', 'Password field is required');
-    }
+//     function validatePassword() {
+//         validateField('password', 'Password field is required');
+//     }
 
-    function validateConfirmPassword() {
-        let password = document.getElementById('password').value.trim();
-        let confirmPassword = document.getElementById('confirmpassword');
+//     function validateConfirmPassword() {
+//         let password = document.getElementById('password').value.trim();
+//         let confirmPassword = document.getElementById('confirmpassword');
 
-        if (!confirmPassword.value.trim()) {
-            setErrorMessage(confirmPassword, 'Confirm Password field is required');
-        } else if (confirmPassword.value.trim() !== password) {
-            setErrorMessage(confirmPassword, 'Passwords do not match');
-        } else {
-            clearErrorMessage(confirmPassword);
-        }
-    }
+//         if (!confirmPassword.value.trim()) {
+//             setErrorMessage(confirmPassword, 'Confirm Password field is required');
+//         } else if (confirmPassword.value.trim() !== password) {
+//             setErrorMessage(confirmPassword, 'Passwords do not match');
+//         } else {
+//             clearErrorMessage(confirmPassword);
+//         }
+//     }
 
-    function validateField(fieldId, errorMessage) {
-        let input = document.getElementById(fieldId);
-        let value = input.value.trim();
-        if (!value) {
-            setErrorMessage(input, errorMessage);
-        } else {
-            clearErrorMessage(input);
-        }
-    }
+//     function validateField(fieldId, errorMessage) {
+//         let input = document.getElementById(fieldId);
+//         let value = input.value.trim();
+//         if (!value) {
+//             setErrorMessage(input, errorMessage);
+//         } else {
+//             clearErrorMessage(input);
+//         }
+//     }
 
-    function setErrorMessage(input, message) {
-        clearErrorMessage(input); 
-        const errorSpan = document.createElement('span');
-        errorSpan.classList.add('text-danger', 'small', 'font-weight-bold', 'd-block', 'mt-1');
-        errorSpan.innerText = message;
-        input.closest('.col-sm-10').appendChild(errorSpan);
-    }
+//     function setErrorMessage(input, message) {
+//         clearErrorMessage(input); 
+//         const errorSpan = document.createElement('span');
+//         errorSpan.classList.add('text-danger', 'small', 'font-weight-bold', 'd-block', 'mt-1');
+//         errorSpan.innerText = message;
+//         input.closest('.col-sm-10').appendChild(errorSpan);
+//     }
 
-    function clearErrorMessage(input) {
-        let errorSpan = input.closest('.col-sm-10').querySelector('.text-danger');
-        if (errorSpan) {
-            errorSpan.remove();
-        }
-    }
-});
+//     function clearErrorMessage(input) {
+//         let errorSpan = input.closest('.col-sm-10').querySelector('.text-danger');
+//         if (errorSpan) {
+//             errorSpan.remove();
+//         }
+//     }
+// });
 
 </script>
 

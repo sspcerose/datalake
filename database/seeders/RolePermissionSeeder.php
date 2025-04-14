@@ -24,7 +24,7 @@ class RolePermissionSeeder extends Seeder
             'Create Roles' => 'roles',
             'Edit Roles' => 'roles',
             'Delete Roles' => 'roles',
-            'View Table1' => 'histories',
+            'View Histories' => 'histories',
             'View Weather' => 'weather',
             'Import Weather' => 'weather',
         ];

@@ -25,17 +25,10 @@
       ]
     },
     {
-      "url": "/hhh",
+      "url": "/weather",
       "name": "Weather",
-      "icon": "menu-icon tf-icons bx bx-folder",
-      "slug": "hhhh",
-      "submenu": [
-        {
-          "url": "/weather",
-          "name": "Weather",
-          "slug": ""
-        }
-      ]
+      "icon": "menu-icon tf-icons bx bx-cloud",
+      "slug": "weather"
     },
     {
       "menuHeader": "User Section"

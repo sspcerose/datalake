@@ -37,7 +37,7 @@
 </form> -->
         <!-- Right Section: Sort, Filter, Search -->
     <div class="col-md-6 d-flex justify-content-end">
-        <form action="{{ route('dashboard-analytics') }}" method="GET" class="d-flex align-items-center me-3">
+        <!-- <form action="{{ route('dashboard-analytics') }}" method="GET" class="d-flex align-items-center me-3">
             <select name="filter" id="filterDropdown" class="p-2 border rounded w-75 me-2" onchange="this.form.submit()">
                     <option value="">Filter</option>
                         <option value="">All</option>
@@ -48,7 +48,7 @@
                         <option value="created_at" {{ request('filter') == 'created_at' ? 'selected' : '' }}>Created At</option>
                         <option value="updated_at" {{ request('filter') == 'updated_at' ? 'selected' : '' }}>Modified At</option>
                   </select>
-            </form>
+            </form> -->
             <!-- Search Input -->
             <input type="text" id="searchInput" placeholder="Search..." class="p-2 border rounded">
         </div>

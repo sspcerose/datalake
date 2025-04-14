@@ -21,7 +21,7 @@ Route::middleware(['auth'])->group(function () {
     // PAGES
     Route::get('/', [Analytics::class, 'index'])->name('dashboard-analytics');
     // Route::get('/user-management', [Analytics::class, 'userManagement'])->name('user-management');
-    Route::middleware('permission:View User')->get('/user-management', [Analytics::class, 'userManagement'])->name('user-management');
+    Route::middleware('permission:View Users')->get('/user-management', [Analytics::class, 'userManagement'])->name('user-management');
 
     // TABLE 1
     // Route::resource('table1', Table1Controller::class);
@@ -39,7 +39,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/search', [Table1Controller::class, 'search'])->name('data.search');
     
     // USERS
-    Route::middleware('permission:View Users')->get('user', [UserController::class, 'index'])->name('user.index');
+    Route::middleware('permission: View Users')->get('user', [UserController::class, 'index'])->name('user.index');
     Route::middleware('permission:Create Users')->get('user/create', [UserController::class, 'create'])->name('user.create');
     Route::middleware('permission:View Users')->get('user/{user}', [UserController::class, 'show'])->name('user.show');
     Route::middleware('permission:Create Users')->post('user', [UserController::class, 'store'])->name('user.store');
@@ -48,8 +48,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:Delete Users')->delete('user/{user}', [UserController::class, 'destroy'])->name('user.destroy');
     Route::get('/user-search', [UserController::class, 'userSearch'])->name('user.search');
     //User Account 
-    Route::middleware('permission:Create User')->get('/user-register', [RegisterBasic::class, 'userRegisterForm'])->name('user-register');
-    Route::middleware('permission:Create User')->get('/user-register', [RegisterBasic::class, 'userRegister'])->name('user-register');
+    Route::middleware('permission:Create Users')->get('/user-register', [RegisterBasic::class, 'userRegisterForm'])->name('user-register');
+    Route::middleware('permission:Create Users')->post('/user-register', [RegisterBasic::class, 'userRegister'])->name('user-register');
 
     // Export#x1
     Route::get('/export-users', [ExportController::class, 'exportUsers'])->name('export.users1');  
@@ -85,7 +85,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('import-weather/process', [ImportController::class, 'weatherProcess'])->name('import-weather.process');
     Route::get('/weather-search', [WeatherController::class, 'search'])->name('weather.search');
 
-    // Permission and Role - crud
+    // Roles and Permission
     Route::middleware('permission:View Roles')->get('roles', [RoleController::class, 'index'])->name('roles.index');
     // Route::middleware('permission:view_role')->get('roles/{role}', [RoleController::class, 'show'])->name('roles.show');
     Route::middleware('permission:Create Roles')->get('roles/create', [RoleController::class, 'create'])->name('roles.create');
@@ -99,7 +99,6 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:Edit Roles')->put('/permissions/update', [RoleController::class, 'updatePermission'])->name('permissions.update');
 // });
 
-
     // PROFILE
     Route::get('/user-profile', [UserController::class, 'userProfile'])->name('user-profile');
     Route::put('/user-profile', [UserController::class, 'updateProfile'])->name('profile-update');
@@ -107,8 +106,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/password/change', [LoginBasic::class, 'showChangeForm'])->name('password.change');
     Route::post('/password/change', [LoginBasic::class, 'update'])->name('password.update');
 
-    // Permission
-    // Route::view('/permission', 'content.users.permission')->name('roles.index');
 
 });
 

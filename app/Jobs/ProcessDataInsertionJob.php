@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Events\FileImportProgress; 
+use App\Events\importSuccess;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -15,6 +15,10 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 // use Illuminate\Support\Carbon;
 use Illuminate\Support\LazyCollection;
+
+// Excel
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class ProcessDataInsertionJob implements ShouldQueue
 {
@@ -169,19 +173,11 @@ class ProcessDataInsertionJob implements ShouldQueue
                 $insertedRows += $this->insertBatch($dataBatch);
                 unset($dataBatch); 
 
-                // event(new databaseInsert("{$insertedRows} rows successfully inserted."));
-
-                // $progress = round(($insertedRows / $this->totalRows()) * 100);
-
-                    // Broadcast progress to the channel
-                // broadcast(new FileImportProgress($progress, basename($this->filePath)));
-
-                    // Optional: You can add some delay or control flow for real-time experience
-                // usleep(50000); 
             }
         });
 
         DB::commit();
+        event(new importSuccess("CSV import successful! {$insertedRows} rows inserted."));
         unlink($this->filePath); 
 
     } catch (\Throwable $e) {

@@ -56,6 +56,16 @@ class RegisterBasic extends Controller
     DB::beginTransaction();
     try{
     // dd($request->all());
+
+    $roleMap = [
+      'Super Admin' => 1,
+      'Admin' => 2,
+      'Viewer' => 3,
+    ];
+
+    $role_id = $roleMap[$request->user_type] ?? null;
+    // dd($role_id);
+
     DB::table('users')->insert([
         'username' => $request->username,
         'first_name' => $request->first_name,
@@ -63,6 +73,7 @@ class RegisterBasic extends Controller
         'user_type' => $request->user_type,
         'email' => $request->email,
         'password' => Hash::make($request->password),
+        'role_id' => $role_id,
     ]);
     DB::commit();
     

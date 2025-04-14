@@ -7,8 +7,8 @@
         : 'asc';
 
     $sortIcon = $currentSortField === $field
-        ? ($currentSortOrder === 'asc' ? '▲' : ($currentSortOrder === 'desc' ? '▼' : '⇅'))
-        : '⇅';
+        ? ($currentSortOrder === 'asc' ? '⥣' : ($currentSortOrder === 'desc' ? '⥥' : '⥮'))
+        : '⥮';
 @endphp
 
 <a href="{{ route($route, ['sort_field' => $field, 'sort_order' => $nextSortOrder]) }}"
