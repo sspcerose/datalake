@@ -42,44 +42,6 @@ class LoginBasic extends Controller
     return back()->withErrors(['email' => 'Invalid credentials.']);
 }
 
-// public function login(Request $request)
-// {
-//      $validate = $request->validate([
-//         'email' => 'required',
-//         'password' => 'required',
-//     ]);
-
-//     $user = User::where('email', $request->email)->first();
-
-//     if ($user && $user->status === 'inactive') {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'You are not allowed to login.',
-//         ], 403);
-//     }
-
-//     if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-//         $user = Auth::user();
-
-//         if ($user->password_changed !== 'true') {
-//             return response()->json([
-//                 'success' => false,
-//                 'message' => 'You must change your password before logging in.',
-//                 'redirect_url' => route('password.change'),
-//             ], 403);
-//         }
-
-//         return response()->json([
-//             'success' => true,
-//             'redirect_url' => route('dashboard-analytics'),
-//         ], 200);
-//     }
-
-//     return response()->json([
-//         'success' => false,
-//         'message' => 'Invalid credentials.',
-//     ], 401);
-// }
 
   public function logout(Request $request)
   {

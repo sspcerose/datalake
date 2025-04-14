@@ -49,7 +49,7 @@ class ForgotPasswordBasic extends Controller
     public function showResetForm($token)
     {
       // dd('I am Here');
-        return view('content.authentications.custom-reset', ['token' => $token]); // Create this view
+        return view('content.authentications.custom-reset', ['token' => $token]); 
     }
 
     public function resetPassword(Request $request)
