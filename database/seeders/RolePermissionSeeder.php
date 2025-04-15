@@ -27,6 +27,15 @@ class RolePermissionSeeder extends Seeder
             'View Histories' => 'histories',
             'View Weather' => 'weather',
             'Import Weather' => 'weather',
+            'Update Weather' => 'weather',
+            'Delete Weather' => 'weather',
+            'Export Weather' => 'weather',
+            'View Users' => 'users',
+            'Create Users' => 'users',
+            'Update Users' => 'users',
+            'Delete Users' => 'users',
+            'Import Users' => 'users',
+            'Export Users' => 'users',
         ];
     
         foreach ($permissions as $permissionName => $permissionTo) {
