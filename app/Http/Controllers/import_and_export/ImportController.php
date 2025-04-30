@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Cache;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\LazyCollection;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Auth;
 //Laravel/Excel
 use App\Imports\UsersImport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -164,132 +165,209 @@ class ImportController extends Controller
     
         // return response()->json(['message' => 'File imported successfully in batches.']);
         return response()->json(['success' => true, 'message' => 'File imported successfully.']);
-
     }
 
-// Using Laravel Excel (Slightly slower than the plain function) [Using Reusable Code (Export Classs)] - Users Table
+    // Using Laravel Excel (Slightly slower than the plain function) [Using Reusable Code (Export Classs)] - Users Table
     public function importUsers(Request $request)
     {
-    // dd('I am here');
-    $request->validate([
-        'file' => 'required|mimes:csv,xlsx,xls',
-    ]);
+        $request->validate([
+            'file' => 'required|mimes:csv,xlsx,xls',
+        ]);
 
-    $table = 'users'; 
-    $columns = [
-        'username' => 'username',
-        'first_name' => 'first_name',
-        'last_name' => 'last_name',
-        'user_type' => 'user_type',
-        'email' => 'email',
-        'password' => 'password',
-        'status' => 'status',
-    ]; 
+        $table = 'users'; 
+        $columns = [
+            'username' => 'username',
+            'first_name' => 'first_name',
+            'last_name' => 'last_name',
+            'user_type' => 'user_type',
+            'email' => 'email',
+            'password' => 'password',
+            'status' => 'status',
+        ]; 
 
-    Excel::import(new UsersImport($table, $columns), $request->file('file'));
+        Excel::import(new UsersImport($table, $columns), $request->file('file'));
 
-    return back()->with('success', 'Data imported successfully!');
-}
+        return back()->with('success', 'Data imported successfully!');
+    }
 
-// Using Laravel Excel (Slightly slower than the plain function) [Using Reusable Code (Export Classs)] - Table 1
+    // Plain Funtion
+    public function importUser(Request $request)
+    {
+        try {
+            // Validate the file input
+            $request->validate([
+                'file' => 'required|mimes:csv,txt',
+            ]);
+
+            // Open the uploaded file
+            $file = $request->file('file');
+            $filePath = $file->getRealPath();
+            $handle = fopen($filePath, 'r');
+
+            if (!$handle) {
+                return back()->with('error', 'Unable to open the file.');
+            }
+
+            // Skip the header row
+            $header = fgetcsv($handle);
+
+            if (!$header) {
+                fclose($handle);
+                return back()->with('error', 'The file is empty or improperly formatted.');
+            }
+
+            // Map user_type values to role_id
+            $roleMapping = [
+                'Super Admin' => 1,
+                'Admin' => 2,
+                'Viewer' => 3,
+            ];
+
+            // Process each row
+            $importedCount = 0;
+            $errors = [];
+
+            while (($row = fgetcsv($handle)) !== false) {
+                try {
+                    if (count($row) < 7) {
+                        throw new \Exception('Invalid row format');
+                    }
+
+                    DB::table('users')->insert([
+                        'username' => $row[0] ?? null,
+                        'first_name' => $row[1] ?? null,
+                        'last_name' => $row[2] ?? null,
+                        'user_type' => $row[3] ?? null,
+                        'role_id' => $roleMapping[$row[3]] ?? null,
+                        'email' => $row[4] ?? null,
+                        'password' => bcrypt($row[5] ?? 'defaultpassword'),
+                        'status' => $row[6] ?? 'active',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    $importedCount++;
+                } catch (\Exception $e) {
+                    $errors[] = "Row: " . json_encode($row) . " - Error: " . $e->getMessage();
+                }
+            }
+            // Close the file
+            fclose($handle);
+
+            // Prepare feedback
+            if (!empty($errors)) {
+                session()->flash('warning', 'Some rows could not be imported.');
+                session()->flash('importErrors', $errors);
+            }
+
+            return back()->with('success', "$importedCount rows imported successfully!");
+
+        } catch (\Throwable $e) {
+            return back()->with('error', 'An unexpected error occurred: ' . $e->getMessage());
+        }
+    }
+
+
+    // Using Laravel Excel (Slightly slower than the plain function) [Using Reusable Code (Export Classs)] - Table 1
     public function importTable1(Request $request)
     {
-        // dd('I am here');
-    $request->validate([
-        'file' => 'required|mimes:csv,xlsx,xls',
-    ]);
-    // dd($request->all());
+        $request->validate([
+            'file' => 'required|mimes:csv,xlsx,xls',
+        ]);
 
-    $table = 'histories'; 
-    $columns = [
-        'track_uri' => 'spotify_track_uri',
-        't_time' => 'ts',
-        'platform' => 'platform',
-        'ms_played' => 'ms_played',
-        'track_name' => 'track_name',
-        'artist_name' => 'artist_name',
-        'album_name' => 'album_name',
-        'reason_start' => 'reason_start',
-        'reason_end' => 'reason_end',
-        'shuffle' => 'shuffle',
-        'skipped' => 'skipped',
-    ];
-
-    Excel::import(new UsersImport($table, $columns), $request->file('file'));
-
-    return back()->with('success', 'Data imported successfully!');
-    }
-
-// NOT AGAIN :(
-
-// Using PHPSpreadSheet (Fail)
-public function import(Request $request)
-{
-    $request->validate([
-        'file' => 'required|file|mimes:csv,xlsx,xls'
-    ]);
-
-    $file = $request->file('file');
-    $spreadsheet = IOFactory::load($file->getRealPath());
-    $sheet = $spreadsheet->getActiveSheet();
-    $rows = $sheet->toArray();
-
-    array_shift($rows);
-
-    session(['import_data' => $rows]);
-
-    return response()->json([
-        'success' => true,
-        'total' => count($rows)
-    ]);
-}
-
-
-public function processBatch(Request $request)
-{
-    $batchSize = 5000;  // Process 10k records per batch
-    $startIndex = $request->get('startIndex', 0);
-
-    $data = session('import_data', []);
-    $batch = array_slice($data, $startIndex, $batchSize);
-
-    if (empty($batch)) {
-        // All data processed
-        return response()->json(['completed' => true]);
-    }
-
-    $insertData = [];
-    foreach ($batch as $row) {
-        if (!array_filter($row)) continue; 
-
-        $insertData[] = [
-            'track_uri'     => $row[0] ?? null,
-            't_time'        => isset($row[1]) ? \Carbon\Carbon::parse($row[1])->format('Y-m-d H:i:s') : null,
-            'platform'      => $row[2] ?? null,
-            'ms_played'     => $row[3] ?? null,
-            'track_name'    => $row[4] ?? null,
-            'artist_name'   => $row[5] ?? null,
-            'album_name'    => $row[6] ?? null,
-            'reason_start'  => $row[7] ?? null,
-            'reason_end'    => $row[8] ?? null,
-            'shuffle'       => $row[9] ?? null,
-            'skipped'       => $row[10] ?? null,
+        $table = 'histories'; 
+        $columns = [
+            'track_uri' => 'spotify_track_uri',
+            't_time' => 'ts',
+            'platform' => 'platform',
+            'ms_played' => 'ms_played',
+            'track_name' => 'track_name',
+            'artist_name' => 'artist_name',
+            'album_name' => 'album_name',
+            'reason_start' => 'reason_start',
+            'reason_end' => 'reason_end',
+            'shuffle' => 'shuffle',
+            'skipped' => 'skipped',
         ];
+
+        Excel::import(new UsersImport($table, $columns), $request->file('file'));
+
+        return back()->with('success', 'Data imported successfully!');
     }
 
-    if (!empty($insertData)) {
-        History::insert($insertData); 
+    // NOT AGAIN :(
+    // Using PHPSpreadSheet (Fail)
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,xlsx,xls'
+        ]);
+
+        $file = $request->file('file');
+        $spreadsheet = IOFactory::load($file->getRealPath());
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray();
+
+        array_shift($rows);
+
+        session(['import_data' => $rows]);
+
+        return response()->json([
+            'success' => true,
+            'total' => count($rows)
+        ]);
     }
 
-    return response()->json([
-        'success' => true,
-        'inserted' => count($insertData),
-        'nextIndex' => $startIndex + $batchSize
-    ]);
-}
 
-// Plain Function with Queues and Jobs (Working Very Well) - Weather Table
-    public function weatherProcess(Request $request){
+    public function processBatch(Request $request)
+    {
+        $batchSize = 5000;  // Process 10k records per batch
+        $startIndex = $request->get('startIndex', 0);
+
+        $data = session('import_data', []);
+        $batch = array_slice($data, $startIndex, $batchSize);
+
+        if (empty($batch)) {
+            // All data processed
+            return response()->json(['completed' => true]);
+        }
+
+        $insertData = [];
+        foreach ($batch as $row) {
+            if (!array_filter($row)) continue; 
+
+            $insertData[] = [
+                'track_uri'     => $row[0] ?? null,
+                't_time'        => isset($row[1]) ? \Carbon\Carbon::parse($row[1])->format('Y-m-d H:i:s') : null,
+                'platform'      => $row[2] ?? null,
+                'ms_played'     => $row[3] ?? null,
+                'track_name'    => $row[4] ?? null,
+                'artist_name'   => $row[5] ?? null,
+                'album_name'    => $row[6] ?? null,
+                'reason_start'  => $row[7] ?? null,
+                'reason_end'    => $row[8] ?? null,
+                'shuffle'       => $row[9] ?? null,
+                'skipped'       => $row[10] ?? null,
+            ];
+        }
+
+        if (!empty($insertData)) {
+            History::insert($insertData); 
+        }
+
+        return response()->json([
+            'success' => true,
+            'inserted' => count($insertData),
+            'nextIndex' => $startIndex + $batchSize
+        ]);
+    }
+
+    // Start
+    // Plain Function with Queues and Jobs (Working Very Well) - Weather Table
+    public function weatherProcess(Request $request)
+    {
+        // dd(auth()->id());
+
         $request->validate([
             'file' => 'required|mimes:csv,txt,xlsx',
             'index' => 'required|integer',
@@ -318,151 +396,154 @@ public function processBatch(Request $request)
         if ($index + 1 == $totalChunks) {
             return $this->mergeChunksAndProcess($fileName, $tempPath);
         }
-    
-        return response()->json(['success' => true]);
         
+    
+        return response()->json(['success' => true]);  
     }
 
     // For Merging chunked files
     private function mergeChunksAndProcess($fileName, $tempPath)
     {
-    $tempPath = storage_path("app/temp_chunks/{$fileName}");
-    $finalFilePath = storage_path("app/uploads/{$fileName}");
+        
+        $tempPath = storage_path("app/temp_chunks/{$fileName}");
+        $finalFilePath = storage_path("app/uploads/{$fileName}");
 
-    // Merge all parts into a single file
-    $outFile = fopen($finalFilePath, 'wb');
-    for ($i = 0; file_exists("$tempPath/part{$i}"); $i++) {
-        fwrite($outFile, file_get_contents("$tempPath/part{$i}"));
+        // Merge all parts into a single file
+        $outFile = fopen($finalFilePath, 'wb');
+        for ($i = 0; file_exists("$tempPath/part{$i}"); $i++) {
+            fwrite($outFile, file_get_contents("$tempPath/part{$i}"));
+        }
+        fclose($outFile);
+
+        // Delete chunk files
+        File::deleteDirectory($tempPath);
+
+        
+
+        // Dispatch the Job 
+        ProcessFileUploadJob::dispatch($fileName, Auth::id());
+
+        // return $this->callDataInsertion($finalFilePath);
+        return response()->json(['success' => true, 'message' => 'File uploaded and queued for processing.']);
     }
-    fclose($outFile);
+    // End
 
-    // Delete chunk files
-    File::deleteDirectory($tempPath);
+    // For Plain Function Without Jobs and Queues (Not Working - will be updated later)
+    private function callDataInsertion($finalFilePath)
+    {
+        if (!file_exists($finalFilePath)) {
+            \Log::error("File {$finalFilePath} not found before processing.");
+            return response()->json(['error' => "File {$finalFilePath} not found."], 404);
+        }
+        // dd($finalFilePath);
+        $chunkSize = 500;
+        $insertedRows = 0;
 
-    // Dispatch the Job 
-    ProcessFileUploadJob::dispatch($fileName);
+        DB::beginTransaction();
+        try {
+            LazyCollection::make(function () use ($finalFilePath) {
+                return response()->json(['error' => "File {$finalFilePath} not found I am here outside."], 404);
+                $handle = fopen($finalFilePath, 'r');
+                fgetcsv($handle); 
+                while (($row = fgetcsv($handle)) !== false) {
+                    yield $row;
+                }
+                fclose($handle);
+            })
+            ->chunk($chunkSize)
+            ->each(function ($rows) use (&$insertedRows) {
+                $dataBatch = collect($rows)->map(fn($row) => $this->mapRowData($row))->filter()->toArray();
 
-    // return $this->callDataInsertion($finalFilePath);
-    return response()->json(['success' => true, 'message' => 'File uploaded and queued for processing.']);
-}
+                if (!empty($dataBatch)) {
+                    $insertedRows += $this->insertBatchWeather($dataBatch);
+                    unset($dataBatch);
+                }
+            });
 
-// For Plain Function Without Jobs and Queues
-private function callDataInsertion($finalFilePath){
-
-    if (!file_exists($finalFilePath)) {
-        \Log::error("File {$finalFilePath} not found before processing.");
-        return response()->json(['error' => "File {$finalFilePath} not found."], 404);
+            DB::commit();
+            \Log::info("CSV Import Successful! {$insertedRows} rows inserted.");
+            unlink($finalFilePath);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            \Log::error("CSV Import Failed: {$e->getMessage()}");
+        }
+        return response()->json(['success' => true, 'message' => 'File processed successfully.']);
     }
-    // dd($finalFilePath);
-    $chunkSize = 500;
-    $insertedRows = 0;
+    
+    // Plain Function (Slow)
+    private function processUploadedFile($filePath)
+    {
+        set_time_limit(120);
+        ini_set('memory_limit', '4G');
+        DB::disableQueryLog();
+        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+        $dataBatch = [];
+        $chunkSize = 3000;
 
-    DB::beginTransaction();
-    try {
-        LazyCollection::make(function () use ($finalFilePath) {
-            return response()->json(['error' => "File {$finalFilePath} not found I am here outside."], 404);
-            $handle = fopen($finalFilePath, 'r');
-            fgetcsv($handle); // Skip header row
+        if ($extension === 'csv') {
+            $handle = fopen($filePath, 'r');
+            $header = fgetcsv($handle);
+
             while (($row = fgetcsv($handle)) !== false) {
-                yield $row;
+                $dataBatch[] = $this->mapRowData($row);
+                Log::info('Mapped Data:', $mappedData);
+
+                if (count($dataBatch) == $chunkSize) {
+                    DB::table('weather')->insertOrIgnore($dataBatch);
+                    Log::info('Inserted a batch of ' . count($dataBatch) . ' rows');
+                    $dataBatch = [];
+                }
             }
-            fclose($handle);
-        })
-        ->chunk($chunkSize)
-        ->each(function ($rows) use (&$insertedRows) {
-            $dataBatch = collect($rows)->map(fn($row) => $this->mapRowData($row))->filter()->toArray();
 
             if (!empty($dataBatch)) {
-                $insertedRows += $this->insertBatchWeather($dataBatch);
-                unset($dataBatch);
-            }
-        });
-
-        DB::commit();
-        \Log::info("CSV Import Successful! {$insertedRows} rows inserted.");
-        unlink($finalFilePath); // Delete file after processing
-    } catch (\Throwable $e) {
-        DB::rollBack();
-        \Log::error("CSV Import Failed: {$e->getMessage()}");
-    }
-
-    return response()->json(['success' => true, 'message' => 'File processed successfully.']);
-}
-    
-// Plain Function (Slow)
-private function processUploadedFile($filePath)
-{
-    set_time_limit(120);
-    ini_set('memory_limit', '4G');
-    DB::disableQueryLog();
-    $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-    $dataBatch = [];
-    $chunkSize = 3000;
-
-    if ($extension === 'csv') {
-        $handle = fopen($filePath, 'r');
-        $header = fgetcsv($handle);
-
-        while (($row = fgetcsv($handle)) !== false) {
-            $dataBatch[] = $this->mapRowData($row);
-            Log::info('Mapped Data:', $mappedData);
-
-            if (count($dataBatch) == $chunkSize) {
                 DB::table('weather')->insertOrIgnore($dataBatch);
-                Log::info('Inserted a batch of ' . count($dataBatch) . ' rows');
-                $dataBatch = [];
             }
+
+            fclose($handle);
+        } elseif ($extension === 'xlsx') {
+            // Your existing XLSX parsing logic
+        } else {
+            return response()->json(['success' => false, 'error' => 'Invalid file type.'], 400);
         }
 
-        if (!empty($dataBatch)) {
-            DB::table('weather')->insertOrIgnore($dataBatch);
+        return response()->json(['success' => true, 'message' => 'File imported successfully.']);
+    }
+
+    // For Plain Function Without Jobs and Queues (Not Working)
+    private function mapRowData($row)
+    {
+        if (empty($row)) return null;
+
+        return [
+            'id'                  => $row[0] ?? null,
+            'city_mun_code'       => $row[1] ?? null,
+            'ave_min'             => is_numeric($row[2]) ? (float) $row[2] : null,
+            'ave_max'             => is_numeric($row[3]) ? (float) $row[3] : null,
+            'ave_mean'            => is_numeric($row[4]) ? (float) $row[4] : null,
+            'rainfall_mm'         => $row[5] ?? null,
+            'rainfall_description'=> $row[6] ?? null,
+            'cloud_cover'         => $row[7] ?? null,
+            'humidity'            => is_numeric($row[8]) ? (float) $row[8] : null,
+            'forecast_date'       => $row[9] ?? null,
+            'date_accessed'       => $row[10] ?? null,
+            'wind_mps'            => is_numeric($row[11]) ? (float) $row[11] : null,
+            'direction'           => $row[12] ?? null,
+            'created_at'          => now(),
+            'updated_at'          => now(),
+        ];
+    }
+
+    // For Plain Function Without Jobs and Queues (Not Working)
+    private function insertBatchWeather(array $data): int
+    {
+        try {
+            DB::table('weather')->insert($data);
+            return count($data);
+        } catch (\Exception $e) {
+            \Log::error("Database Insert Error: {$e->getMessage()}");
+            throw $e;
         }
-
-        fclose($handle);
-    } elseif ($extension === 'xlsx') {
-        // Your existing XLSX parsing logic
-    } else {
-        return response()->json(['success' => false, 'error' => 'Invalid file type.'], 400);
     }
-
-    return response()->json(['success' => true, 'message' => 'File imported successfully.']);
-}
-
-// For Plain Function Without Jobs and Queues (Not Working)
-private function mapRowData($row)
-{
-    if (empty($row)) return null;
-
-    return [
-        'id'                  => $row[0] ?? null,
-        'city_mun_code'       => $row[1] ?? null,
-        'ave_min'             => is_numeric($row[2]) ? (float) $row[2] : null,
-        'ave_max'             => is_numeric($row[3]) ? (float) $row[3] : null,
-        'ave_mean'            => is_numeric($row[4]) ? (float) $row[4] : null,
-        'rainfall_mm'         => $row[5] ?? null,
-        'rainfall_description'=> $row[6] ?? null,
-        'cloud_cover'         => $row[7] ?? null,
-        'humidity'            => is_numeric($row[8]) ? (float) $row[8] : null,
-        'forecast_date'       => $row[9] ?? null,
-        'date_accessed'       => $row[10] ?? null,
-        'wind_mps'            => is_numeric($row[11]) ? (float) $row[11] : null,
-        'direction'           => $row[12] ?? null,
-        'created_at'          => now(),
-        'updated_at'          => now(),
-    ];
-}
-
-// For Plain Function Without Jobs and Queues (Not Working)
-private function insertBatchWeather(array $data): int
-{
-    try {
-        DB::table('weather')->insert($data);
-        return count($data);
-    } catch (\Exception $e) {
-        \Log::error("Database Insert Error: {$e->getMessage()}");
-        throw $e;
-    }
-}
 
 ///////////////////////JUNKS THAT MIGHT BE USEFUL LATER////////////////////////////////////
 // public function process(Request $request)

@@ -14,29 +14,39 @@ class Analytics extends Controller
 {
     public function index(Request $request)
     {
-        $sortField = $request->input('sort_field', 'track_name');
-        $sortOrder = $request->input('sort_order', 'asc');
-        // if (Auth::user()->user_type == 'Admin' || Auth::user()->user_type == 'User Type 1') {
-            $query = DB::table('histories');
+        // $sortField = $request->input('sort_field', 'track_name');
+        // $sortOrder = $request->input('sort_order', 'asc');
+
+        //     $query = DB::table('histories');
     
-            if ($request->filled('filter')) {
-                $filter = $request->input('filter');
-                if (in_array($filter, ['created_at', 'updated_at'])) {
-                    $query->orderBy($filter, 'desc'); 
-                } else {
-                    $query->where('artist_name', 'like', '%' . $request->filter . '%');
-                }
+        //     if ($request->filled('filter')) {
+        //         $filter = $request->input('filter');
+        //         if (in_array($filter, ['created_at', 'updated_at'])) {
+        //             $query->orderBy($filter, 'desc'); 
+        //         } else {
+        //             $query->where('artist_name', 'like', '%' . $request->filter . '%');
+        //         }
                
-            }
-
-            if ($sortOrder !== 'none') {
-                $query->orderBy($sortField, $sortOrder);
-            }
+        //     }
+        //     if ($sortOrder !== 'none') {
+        //         $query->orderBy($sortField, $sortOrder);
+        //     }
             
-            $samples = $query->paginate(5)->appends($request->except('page'));
-            // $samples = $query->orderBy($sortField, $sortOrder)->paginate(5)->appends($request->except('page'));
+        //     $samples = $query->paginate(5)->appends($request->except('page'));
+        //     // $samples = $query->orderBy($sortField, $sortOrder)->paginate(5)->appends($request->except('page'));
 
-            return view('content.table1.table1', compact('samples', 'sortField', 'sortOrder'));
+        //     $jobsDone = DB::table('jobs_done')
+        //     ->where('user_id', auth()->id())
+        //     ->orderBy('created_at', 'desc')
+        //     ->limit(5)
+        //     ->get();
+        $city_mun_code = DB::table('weather')
+    ->select('city_mun_code')
+    ->distinct()
+    ->paginate(100); // Fetch 100 records per page
+
+return view('content.table1.table1', compact('city_mun_code'));
+        // return view('content.table1.table1', compact('samples', 'sortField', 'sortOrder', 'jobsDone'));    
     }
 
     public function table2()
@@ -44,26 +54,31 @@ class Analytics extends Controller
         return view ('content.dashboard.table2');
     }
 
-public function userManagement(Request $request)
-{
-    $sortField = $request->input('sort_field', 'first_name');
-    $sortOrder = $request->input('sort_order', 'asc');
+    public function userManagement(Request $request)
+    {
+        $sortField = $request->input('sort_field', 'first_name');
+        $sortOrder = $request->input('sort_order', 'asc');
 
-    // if (Auth::user()->user_type == 'Admin' || Auth::user()->user_type == 'User Type 1') {
-        $query = DB::table('users');
+        // if (Auth::user()->user_type == 'Admin' || Auth::user()->user_type == 'User Type 1') {
+        $query = DB::table('users')
+                ->where('user_type', '!=', 'Super Admin');
 
-    if ($request->filled('filter')) {
-        $query->where('user_type', 'like', '%' . $request->filter . '%');
-    }
+        if ($request->filled('filter')) {
+            $query->where('user_type', 'like', '%' . $request->filter . '%');
+        }
 
-    $query->where('user_type', '!=', 'Admin');
+        if ($sortOrder !== 'none') {
+            $query->orderBy($sortField, $sortOrder);
+        }
 
-    if ($sortOrder !== 'none') {
-        $query->orderBy($sortField, $sortOrder);
-    }
+        $users = $query->paginate(5)->appends($request->except('page'));
 
-    $users = $query->paginate(5)->appends($request->except('page'));
+        $jobsDone = DB::table('jobs_done')
+            ->where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
 
-    return view('content.users.user-management', compact('users', 'sortField', 'sortOrder'));
+        return view('content.users.user-management', compact('users', 'sortField', 'sortOrder', 'jobsDone'));
     }
 }

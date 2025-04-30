@@ -10,7 +10,7 @@ $primary-color: #696cff;
 // ---------------------------------------------------------------------------
 @include template-navbar-style('.bg-navbar-theme', $card-bg, $color: $headings-color, $active-color: $body-color);
 .layout-navbar {
-  background-color: rgba($card-bg, 0.88) !important;
+  background-color: rgba($card-bg, 1) !important;
   backdrop-filter: saturate(200%) blur(6px);
 }
 .navbar-detached {

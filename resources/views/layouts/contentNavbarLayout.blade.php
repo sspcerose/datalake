@@ -17,33 +17,14 @@ $container = ($container ?? 'container-xxl');
 
 @endphp
 
+
+
 @section('layoutContent')
-<div class="layout-wrapper layout-content-navbar {{ $isMenu ? '' : 'layout-without-menu' }}">
-  <div class="layout-container">
 
-    @if ($isMenu)
-    @include('layouts/sections/menu/verticalMenu')
-    @endif
-
-
-    <!-- Layout page -->
-    <div class="layout-page">
-      <!-- BEGIN: Navbar-->
-      @if ($isNavbar)
-      @include('layouts/sections/navbar/navbar')
-      @endif
-      <!-- END: Navbar-->
-
+@include('layouts/sections/menu/horizontalMenu')
 
       <!-- Content wrapper -->
-      <div class="content-wrapper">
-
-        <!-- Content -->
-        @if ($isFlex)
-        <div class="{{$container}} d-flex align-items-stretch flex-grow-1 p-0">
-          @else
-          <div class="{{$container}} flex-grow-1 container-p-y">
-            @endif
+      <div class="content-wrapper col-11 py-6 mx-auto">
 
             @yield('content')
 

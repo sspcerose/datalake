@@ -15,26 +15,25 @@ class WeatherController extends Controller
      */
     public function index(Request $request)
     {
-
         $sortField = $request->input('sort_field', 'city_mun_code');
         $sortOrder = $request->input('sort_order', 'asc');
 
-        // dd($sortField, $sortOrder);
-
         // if (Auth::user()->user_type == 'Admin' || Auth::user()->user_type == 'User Type 1') {
-            $query = DB::table('weather');
-    
+        $query = DB::table('weather');
 
-            if ($sortOrder !== 'none') {
-                $query->orderBy($sortField, $sortOrder);
-            }
-            
-            $weatherData = $query->paginate(5)->appends($request->except('page'));
-         // Get all weather data
-        //  $weatherData = DB::table('weather')->paginate(5);
+        if ($sortOrder !== 'none') {
+            $query->orderBy($sortField, $sortOrder);
+        }
+ 
+        $weatherData = $query->paginate(20)->appends($request->except('page'));
+        
+        $jobsDone = DB::table('jobs_done')
+        ->where('user_id', auth()->id())
+        ->orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get();
 
-         // Pass the data to the view
-         return view('content.weather.weather', compact('weatherData', 'sortField', 'sortOrder'));
+        return view('content.weather.weather', compact('weatherData', 'sortField', 'sortOrder', 'jobsDone'));
     }
 
     /**
@@ -64,10 +63,8 @@ class WeatherController extends Controller
             'wind_mps' => 'required|numeric',
             'direction' => 'required|string|max:255',
         ]);
-        // dd($validatedData);
     
         DB::beginTransaction();
-        // dd('I am here');
         try {
             DB::table('weather')->insert([
                 'city_mun_code' => $request->city_mun_code,
@@ -85,17 +82,12 @@ class WeatherController extends Controller
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
-    
             DB::commit();
-    
-            // Redirect with success message
             return redirect()->route('weather.index')->with('success', 'Weather data has been added successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            
             dd($e->getMessage());
-    
-            // Redirect with error message
+
             return redirect()->back()->with('error', 'Failed to add weather data! Please try again.');
         }
     }
@@ -123,7 +115,6 @@ class WeatherController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // dd('I am here');
         $validateData = $request->validate([
             'city_mun_code' => 'required|string|max:255',
             'ave_min' => 'required|numeric',
@@ -164,7 +155,6 @@ class WeatherController extends Controller
             return redirect()->route('weather.index')->with('success', 'Weather Record is Updated!');;
            }catch(\Exception $e){
             DB::rollBack();
-            // dd($e);
             $msg = ['danger', 'Failed to Update Record!'];
             return redirect()->back()->with(['msg'=>$msg]);
            }
@@ -197,24 +187,21 @@ class WeatherController extends Controller
             ->orWhere('ave_mean', 'like', "%$query%")
             ->orWhere('rainfall_mm', 'like', "%$query%")
             ->orWhereRaw('LOWER(rainfall_description) like ?', ['%' . strtolower($query) . '%'])
-            // Apply case-insensitive search for cloud_cover
             ->orWhereRaw('LOWER(cloud_cover) like ?', ['%' . strtolower($query) . '%'])
             ->orWhere('humidity', 'like', "%$query%")
             ->orWhere('wind_mps', 'like', "%$query%")
             ->orWhereRaw('LOWER(direction) like ?', ['%' . strtolower($query) . '%'])
             ->paginate(5);
-        
+    
             DB::commit(); 
         } catch (\Exception $e) {
             DB::rollback(); 
             return back()->withErrors(['error' => 'Something went wrong. Please try again.']);
         }
-    
-            return response()->json([
-                'data' => $weatherinfo->items(),
-                'links' => $weatherinfo->links('vendor.pagination.bootstrap-5')->render()
-            ]);
-            // dd($samples);
-        
+
+        return response()->json([
+            'data' => $weatherinfo->items(),
+            'links' => $weatherinfo->links('vendor.pagination.bootstrap-5')->render()
+        ]);
     }
 }

@@ -17,15 +17,16 @@
       <div class="card px-sm-6 px-0">
         <div class="card-body">
           <!-- Logo -->
-          <div class="app-brand justify-content-center mb-6">
+          <div class="app-brand mb-6">
             <a href="{{url('/')}}" class="app-brand-link gap-2">
               <!-- <span class="app-brand-logo demo">@include('_partials.macros',["width"=>25,"withbg"=>'var(--bs-primary)'])</span>
               <span class="app-brand-text demo text-heading fw-bold">{{ config('variables.templateName') }}</span> -->
-              <span class="app-brand-text demo text-heading fw-bold">DATA LAKE</span>
+              <!-- <span class="app-brand-text demo text-heading fw-bold"></span> -->
+              <img src="{{ asset('assets/img/favicon/data-lake-logo.png') }}" alt="Logo" style="height: 90px; width: auto;" />
             </a>
           </div>
           <!-- /Logo -->
-          <h4 class="mb-1">Forgot Password? 🔒</h4>
+          <h4 class="mb-1">Forgot Password?</h4>
           <p class="mb-6">Enter your email and we'll send you instructions to reset your password</p>
           <form id="formAuthentication" class="mb-6" action="{{ route('password.handle_request') }}" method="POST">
             @csrf

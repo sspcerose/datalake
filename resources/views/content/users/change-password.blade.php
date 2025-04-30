@@ -14,15 +14,16 @@
       <div class="card px-sm-6 px-0">
         <div class="card-body">
           <!-- Logo -->
-          <div class="app-brand justify-content-center">
+          <div class="app-brand">
             <a href="{{url('/')}}" class="app-brand-link gap-2">
               <!-- <span class="app-brand-logo demo">@include('_partials.macros',["width"=>25,"withbg"=>'var(--bs-primary)'])</span>
               <span class="app-brand-text demo text-heading fw-bold">{{config('variables.templateName')}}</span> -->
-              <span class="app-brand-text demo text-heading fw-bold">DATA LAKE</span>
+              <!-- <span class="app-brand-text demo text-heading fw-bold">DATA LAKE</span> -->
+              <img src="{{ asset('assets/img/favicon/data-lake-logo.png') }}" alt="Logo" style="height: 85px; width: auto;" />
             </a>
           </div>
           <!-- /Logo -->
-          <h4 class="mb-1">Welcome! 👋</h4>
+          <h4 class="mb-1">Change Password</h4>
           <p class="mb-6">Please change your temporary password</p>
           <form id="changePassForm" class="mb-6" action="{{ route('password.update') }}"  method="POST" >
             @csrf

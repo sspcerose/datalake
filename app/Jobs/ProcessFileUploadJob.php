@@ -14,20 +14,22 @@ class ProcessFileUploadJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $fileName;
-
+    protected $userId;
     /**
      * Create a new job instance.
      *
      * @param string $fileName
      */
-    public function __construct($fileName)
+    public function __construct($fileName, $userId = null)
     {
         $this->fileName = $fileName;
+        $this->userId = $userId;
     }
 
     /**
      * Execute the job.
      */
+    // TO BE UPDATED!
     public function handle()
     {
         // $tempPath = storage_path("app/temp_chunks/{$this->fileName}");
@@ -54,6 +56,6 @@ class ProcessFileUploadJob implements ShouldQueue
     }
 
     // ✅ Dispatch the insertion job with the file
-    ProcessDataInsertionJob::dispatch($finalFilePath);
+    ProcessDataInsertionJob::dispatch($finalFilePath, $this->userId);
     }
 }

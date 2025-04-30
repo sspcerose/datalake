@@ -1,6 +1,6 @@
 @extends('layouts/blankLayout')
 
-@section('title', 'Login Basic - Pages')
+@section('title', 'Login')
 
 @section('page-style')
 @vite([
@@ -16,20 +16,21 @@
       <div class="card px-sm-6 px-0">
         <div class="card-body">
           <!-- Logo -->
-          <div class="app-brand justify-content-center">
-            <a href="{{url('/')}}" class="app-brand-link gap-2">
-              <span class="app-brand-text demo text-heading fw-bold">DATA LAKE</span>
+          <div class="app-brand mb-3">
+            <a href="{{ url('/') }}" class="app-brand-link">
+              <img src="{{ asset('assets/img/favicon/data-lake-logo.png') }}" alt="Logo" style="height: 85px; width: auto;" />
+              <!-- <span class="app-brand-text demo text-heading fw-bold">ADD LOGO</span> -->
             </a>
           </div>
           <!-- /Logo -->
-          <h5 class="mb-1 d-flex justify-content-center">Welcome to Data Lake Portal!</h5>
-          <p class="mb-6">Please sign-in to your account and start the adventure</p>
+          <h4 class="mb-1 d-flex">Welcome!</h4>
+          <p class="mb-6">Please sign-in to your account</p>
 
           <form id="formAuthentication" class="mb-6" action="{{ route('auth-login-basic2')}}" method="POST">
             @csrf
             <div class="mb-6">
               <label for="email" class="form-label">Email</label>
-              <input type="text" class="form-control" id="email" name="email" value="{{ old('email') }}" placeholder="Enter your email or username" autofocus required>
+              <input type="text" class="form-control" id="email" name="email" value="{{ old('email') }}" placeholder="Enter your email" autofocus required>
               @error('email')
                 <div class="text-danger mt-2 small">
                     {{ $message }}
@@ -43,8 +44,8 @@
                 <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
               </div>
             </div>
-            <div class="mb-8">
-              <div class="d-flex justify-content-end mt-8">
+            <div class="mb-6">
+              <div class="d-flex justify-content-end mt-4">
                 <!-- <div class="form-check mb-0 ms-2">
                   <input class="form-check-input" type="checkbox" id="remember-me">
                   <label class="form-check-label" for="remember-me">

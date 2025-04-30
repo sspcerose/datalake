@@ -18,7 +18,7 @@
           <div class="row mb-6">
             <label class="col-sm-2 col-form-label" for="basic-default-username">User Name<span class="text-danger">*</span></label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="basic-default-username" name="username" placeholder="John Doe" value="{{old('username')}}" />
+              <input type="text" class="form-control" id="basic-default-username" name="username" placeholder="Enter Username" value="{{old('username')}}" />
               @error('username')
                   <span class="text-danger small font-weight-bold d-block mt-1">{{ $message }}</span>
               @enderror
@@ -27,7 +27,7 @@
           <div class="row mb-6">
             <label class="col-sm-2 col-form-label" for="basic-default-first_name">First Name<span class="text-danger">*</span></label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="basic-default-first_name" name="first_name" placeholder="John Doe" value="{{old('first_name')}}" />
+              <input type="text" class="form-control" id="basic-default-first_name" name="first_name" placeholder="Enter First Name" value="{{old('first_name')}}" />
               @error('first_name')
                   <span class="text-danger small font-weight-bold d-block mt-1">{{ $message }}</span>
               @enderror
@@ -36,7 +36,7 @@
           <div class="row mb-6">
             <label class="col-sm-2 col-form-label" for="basic-default-last_name">Last Name<span class="text-danger">*</span></label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="basic-default-last_name" name="last_name" placeholder="John Doe" value="{{old('last_name')}}" />
+              <input type="text" class="form-control" id="basic-default-last_name" name="last_name" placeholder="Enter Last Name" value="{{old('last_name')}}" />
               @error('last_name')
                   <span class="text-danger small font-weight-bold d-block mt-1">{{ $message }}</span>
               @enderror
@@ -47,7 +47,9 @@
             <div class="col-sm-10">
               <select class="form-select" id="basic-default-company" aria-label="Default select example" name="user_type">
               <option value="" disabled {{ old('user_type') == null ? 'selected' : '' }}>Select User Type</option>
+              @if (Auth::user()->user_type == 'Super Admin')
               <option value="Super Admin" {{ old('user_type') == 'Super Admin' ? 'selected' : '' }}>Super Admin ([Add Desc Later])</option>
+              @endif
               <option value="Admin" {{ old('user_type') == 'Admin' ? 'selected' : '' }}>Admin ([Add Desc Later])</option>
               <option value="Viewer" {{ old('user_type') == 'Viewer' ? 'selected' : '' }}>Viewer (Access to view content only.)</option>
               </select>
@@ -60,7 +62,7 @@
             <label class="col-sm-2 col-form-label" for="basic-default-email">Email<span class="text-danger">*</span></label>
             <div class="col-sm-10">
               <div class="input-group input-group-merge">
-                <input type="text" name="email" id="basic-default-email" class="form-control" placeholder="john.doe" aria-label="john.doe" aria-describedby="basic-default-email2" value="{{old('email')}}" />
+                <input type="text" name="email" id="basic-default-email" class="form-control" placeholder="Enter Email" aria-label="john.doe" aria-describedby="basic-default-email2" value="{{old('email')}}" />
               </div>
               <div class="form-text"> You can use letters, numbers & periods </div>
               @error('email')

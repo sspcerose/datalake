@@ -3,6 +3,15 @@
 @section('title', 'Permission Table')
 
 @section('content')
+
+<style>
+    .nav-pills .nav-link.active {
+        color: #fff !important;
+        background-color: #696cff !important; /* Optional: for blue background */
+        text-decoration: none !important;
+    }
+</style>
+
 <div class="card">
     <h5 class="card-header">Roles and Permissions</h5>
     <div class="card-body p-0">
@@ -34,7 +43,7 @@
                                     height: 36px;
                                     font-size: 0.85rem;
                                     padding: 0.5rem 1rem;
-                                    border-bottom: 1px solid #dee2e6;
+                                    /* border-bottom: 1px solid #dee2e6; */
                                 "
                             >
                                 {{ ucfirst(strtolower($group)) }}

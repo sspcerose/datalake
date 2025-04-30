@@ -47,7 +47,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form action="/import-users" method="POST" enctype="multipart/form-data">
+          <form action="{{route('import.process')}}" method="POST" enctype="multipart/form-data">
               @csrf
             <div class="mb-3">
               <label for="csvFileModal" class="form-label">Upload File</label>
@@ -102,7 +102,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form action="/import-users" method="POST" enctype="multipart/form-data">
+        <form action="{{route('import.users')}}" method="POST" enctype="multipart/form-data">
             @csrf
           <div class="mb-3">
             <label for="csvFileModal" class="form-label">Upload File</label>

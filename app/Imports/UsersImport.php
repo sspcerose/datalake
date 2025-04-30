@@ -24,39 +24,19 @@ class UsersImport implements ToCollection, WithHeadingRow, WithChunkReading
 
     public function collection($rows)
     {
-        // $data = [];
-
-        // foreach ($rows as $row) {
-        //     $data[] = [
-        //         'username' => $row['username'], 
-        //         'first_name' => $row['first_name'],
-        //         'last_name' => $row['last_name'],
-        //         'user_type' => $row['user_type'],
-        //         'email' => $row['email'],
-        //         'password' => Hash::make($row['password']),
-        //         'status' => $row['status'],
-        //     ];
-
         foreach ($rows as $row) {
             $entry = [];
             foreach ($this->columns as $dbColumn => $excelColumn) {
                 $entry[$dbColumn] = $row[$excelColumn];
             }
 
-            // Optionally handle special columns like hashing passwords
             if (isset($entry['password'])) {
                 $entry['password'] = bcrypt($entry['password']);
             }
 
-            // if (isset($entry['ms_played'])) {
-            //     $entry['ms_played'] = \Carbon\Carbon::createFromFormat('d/m/Y H:i:s', $row['ms_played'])->toDateTimeString();
-            // }
-
-
             $data[] = $entry;
         }
 
-        // Insert chunked data into the database
         if (!empty($data)) {
             DB::table($this->table)->insertOrIgnore($data);
         }
@@ -67,6 +47,6 @@ class UsersImport implements ToCollection, WithHeadingRow, WithChunkReading
      */
     public function chunkSize(): int
     {
-        return 1000; // Process 1000 rows per chunk
+        return 1000;
     }
 }

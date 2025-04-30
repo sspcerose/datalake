@@ -58,13 +58,10 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // dd($request->all());
         $validateData = $request->validate([
             'user_type' => 'required',
             'status' => 'required',
            ]);
-
-        // dd($validateData);
 
            DB::beginTransaction();
            try{
@@ -85,7 +82,6 @@ class UserController extends Controller
             return redirect()->route('user-management')->with(['msg'=>$msg]);
            }catch(\Exception $e){
             DB::rollBack();
-            // dd($e);
             $msg = ['danger', 'Failed to Update Record!'];
             return redirect()->back()->with(['msg'=>$msg]);
            }
@@ -108,83 +104,83 @@ class UserController extends Controller
 
     public function updateProfile(Request $request)
     {
-    // dd($request->all());
-    $request->validate([
-        'username' => 'required',
-        'email' => 'required|email|unique:users,email,' . $request->user()->id,
-        // 'password' => 'nullable|min:8',
-    ]);
-
-    $user = $request->user();
-
-    // if ($request->has('password') && !empty($request->password)) {
-    //     $user->password = bcrypt($request->password);
-    // }
-
-    if ($user->isDirty('email')) {
-        $user->email_verified_at = null;
-    }
-
-    if ($request->has('username') && $user->username !== $request->username) {
-        $user->username = $request->username;
-    }
-    if ($request->has('first_name') && $user->first_name !== $request->first_name) {
-        $user->first_name = $request->first_name;
-    }
-    if ($request->has('last_name') && $user->last_name !== $request->last_name) {
-        $user->last_name = $request->last_name;
-    }
-
-    if ($request->has('user_type') && $user->user_type !== $request->user_type) {
-        $user->user_type = $request->user_type;
-    }
-
-    if ($request->has('status') && $user->status !== $request->status) {
-        $user->status = $request->status;
-    }
-
-    $user->save();
-
-    return redirect()->route('user-profile')->with('status', 'profile-updated');
-}
-
-public function changePassword(){
-    dd('change password');
-}
-
-public function userSearch(Request $request)
-{
-    // dd($request->all());
-    $query = $request->input('query');
-
-    if (!$query) {
-        return response()->json([], 200);
-    }
-
-    DB::beginTransaction(); 
-    try {
-        $users = DB::table('users')
-            ->where('user_type', '!=', 'Admin')
-            ->where(function ($queryBuilder) use ($query) {
-                $queryBuilder->where('first_name', 'like', "%$query%")
-                    ->orWhere('last_name', 'like', "%$query%")
-                    ->orWhere('email', 'like', "%$query%")
-                    ->orWhere('user_type', 'like', "%$query%")
-                    ->orWhere('status', $query);
-            })
-            ->paginate(5);
-    
-        DB::commit(); 
-    } catch (\Exception $e) {
-        DB::rollback();
-        return back()->withErrors(['error' => 'Something went wrong. Please try again.']);
-    }
-
-        return response()->json([
-            'data' => $users->items(),
-            'links' => $users->links('vendor.pagination.bootstrap-5')->render()
+        $request->validate([
+            'username' => 'required',
+            'email' => 'required|email|unique:users,email,' . $request->user()->id,
+            'first_name' => 'required',
+            'last_name' => 'required',
         ]);
-        // dd($samples);
-    
-}
+
+        $user = $request->user();
+
+        // if ($request->has('password') && !empty($request->password)) {
+        //     $user->password = bcrypt($request->password);
+        // }
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+            
+        }
+        if ($request->has('email') && $user->email !== $request->email) {
+            $user->email = $request->email;
+        }
+
+        if ($request->has('username') && $user->username !== $request->username) {
+            $user->username = $request->username;
+        }
+        if ($request->has('first_name') && $user->first_name !== $request->first_name) {
+            $user->first_name = $request->first_name;
+        }
+        if ($request->has('last_name') && $user->last_name !== $request->last_name) {
+            $user->last_name = $request->last_name;
+        }
+
+        if ($request->has('user_type') && $user->user_type !== $request->user_type) {
+            $user->user_type = $request->user_type;
+        }
+
+        // if ($request->has('status') && $user->status !== $request->status) {
+        //     $user->status = $request->status;
+        // }
+
+        $user->save();
+
+        return redirect()->route('user-profile')->with('status', 'profile-updated');
+    }
+
+    public function changePassword(){
+        dd('change password');
+    }
+
+    public function userSearch(Request $request)
+    {
+        $query = $request->input('query');
+
+        if (!$query) {
+            return response()->json([], 200);
+        }
+
+        DB::beginTransaction(); 
+        try {
+            $users = DB::table('users')
+                ->where('user_type', '!=', 'Super Admin')
+                ->where(function ($queryBuilder) use ($query) {
+                    $queryBuilder->where('first_name', 'like', "%$query%")
+                        ->orWhere('last_name', 'like', "%$query%")
+                        ->orWhere('email', 'like', "%$query%")
+                        ->orWhere('user_type', 'like', "%$query%")
+                        ->orWhere('status', $query);
+                })
+                ->paginate(5);
+        
+            DB::commit(); 
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->withErrors(['error' => 'Something went wrong. Please try again.']);
+        }
+            return response()->json([
+                'data' => $users->items(),
+                'links' => $users->links('vendor.pagination.bootstrap-5')->render()
+            ]);
+    }
 }

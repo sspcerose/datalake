@@ -5,35 +5,37 @@
 
 
 <div class="card">
-  <h5 class="card-header">Weather</h5>  
-  <div class="table-responsive text-nowrap">
-  <div class="container mb-3">
+  <h5 class="card-header d-flex justify-content-between align-items-center">
+    Weather
 
-  <div class="row align-items-center">
-    <!-- Left Section: Add, Import, Export buttons -->
-    <div class="col-md-6 d-flex justify-content-start">
-    @if (auth()->user()->hasPermission('Create Weather'))
-        <a class="btn btn-primary btn-sm d-flex align-items-center me-3" href="{{ route('weather.create') }}">
-            <i class="bx bx-plus-circle me-2"></i> Add
-        </a>
-    @endif
-    @if (auth()->user()->hasPermission('Import Weather'))
-        <button class="btn btn-sm d-flex align-items-center me-3 text-white" style="background-color: #539812; id="importButton" data-bs-toggle="modal" data-bs-target="#modalCenter">
-            <i class="bx bx-import me-2"></i> Import
-        </button>
-    @endif
-    @if (auth()->user()->hasPermission('Export Weather'))
-        <a href="{{ route('export.weather') }}" class="btn btn-warning btn-sm d-flex align-items-center">
-            <i class="bx bx-export me-2"></i> Export
-        </a>
-    @endif
-    </div>
-    <div class="col-md-6 d-flex justify-content-end">
-            <!-- Search Input -->
-            <input type="text" id="searchInput" placeholder="Search..." class="p-2 border rounded">
+  </h5>
+  <div class="table-responsive text-nowrap">
+    <div class="container mb-3">
+      <div class="row align-items-center">
+        <!-- Left Section: Add, Import, Export buttons -->
+        <div class="col-md-6 d-flex justify-content-start">
+          @if (auth()->user()->hasPermission('Create Weather'))
+            <a class="btn btn-primary btn-sm d-flex align-items-center me-3" href="{{ route('weather.create') }}">
+              <i class="bx bx-plus-circle me-2"></i> Add
+            </a>
+          @endif
+          @if (auth()->user()->hasPermission('Import Weather'))
+            <button class="btn btn-sm d-flex align-items-center me-3 text-white" style="background-color: #539812;" id="importButton" data-bs-toggle="modal" data-bs-target="#modalCenter">
+              <i class="bx bx-import me-2"></i> Import
+            </button>
+          @endif
+          @if (auth()->user()->hasPermission('Export Weather'))
+            <a href="{{ route('export.weather') }}" class="btn btn-warning btn-sm d-flex align-items-center">
+              <i class="bx bx-export me-2"></i> Export
+            </a>
+          @endif
         </div>
+        <div class="col-md-6 d-flex justify-content-end">
+          <!-- Search Input -->
+          <input type="text" id="searchInput" placeholder="Search..." class="p-2 border border-dark rounded">
+        </div>
+      </div>
     </div>
-</div>
 
 <table class="table" id="allResultsTable">
 
@@ -82,22 +84,22 @@
             <!-- <th style="width: 20%"><x-sortable-column field="ave_min" label="Avg Min Temp (°C)" route="weather.index" /></th> -->
             <!-- <th style="width: 20%"><x-sortable-column field="ave_max" label="Avg Max Temp (°C)" route="weather.index" /></th> -->
             <th style="width: 20%"><x-sortable-column field="ave_mean" label="Avg Mean Temp (°C)" route="weather.index" /></th>
-            <!-- <th style="width: 20%"><x-sortable-column field="rainfall_mm" label="Rainfall (mm)" route="weather.index" /></th> -->
+            <th style="width: 20%"><x-sortable-column field="rainfall_mm" label="Rainfall (mm)" route="weather.index" /></th>
             <!-- <th style="width: 20%"><x-sortable-column field="rainfall_description" label="Rainfall Description" route="weather.index" /></th> -->
             <th style="width: 20%"><x-sortable-column field="cloud_cover" label="Cloud Cover" route="weather.index" /></th>
             <!-- <th style="width: 20%"><x-sortable-column field="humidity" label="Humidity (%)" route="weather.index" /></th> -->
             <th style="width: 20%"><x-sortable-column field="forecast_date" label="Forecast Date" route="weather.index" /></th>
             <!-- <th style="width: 20%"><x-sortable-column field="date_accessed" label="Date Accessed" route="weather.index" /></th> -->
             <th style="width: 20%"><x-sortable-column field="wind_mps" label="Wind Speed (m/s)" route="weather.index" /></th>
-            <th style="width: 20%"><x-sortable-column field="direction" label="Direction" route="weather.index" /></th>
-                    @if(Auth::user()->user_type != 'User Type 1' && Auth::user()->user_type != 'Viewer' )
+            <!-- <th style="width: 20%"><x-sortable-column field="direction" label="Direction" route="weather.index" /></th> -->
+            @if (auth()->user()->hasPermission('View Weather') || auth()->user()->hasPermission('Update Weather') || auth()->user()->hasPermission('Delete Weather'))
             <th style="width: 10%">Actions</th>
                     @endif
                 </tr>
             </thead>
             @if($weatherData->isEmpty())
                 <tbody>
-                    <tr><td>no data</td></tr>
+                    <tr><td>Empty</td></tr>
                 </tbody>
             @else
             <tbody>
@@ -108,14 +110,14 @@
                         <!-- <td class="text-wrap">{{ $weather->ave_min ?? '-' }}</td> -->
                         <!-- <td class="text-wrap">{{ $weather->ave_max ?? '-' }}</td> -->
                         <td class="text-wrap">{{ $weather->ave_mean ?? '-' }}</td>
-                        <!-- <td class="text-wrap">{{ $weather->rainfall_mm ?? '-' }} %</td> -->
+                        <td class="text-wrap">{{ $weather->rainfall_mm ?? '-' }} %</td>
                         <!-- <td class="text-wrap">{{ $weather->rainfall_description ?? '-' }}</td> -->
                         <td class="text-wrap">{{ ucwords(strtolower($weather->cloud_cover)) ?? '-' }}</td>
                         <!-- <td class="text-wrap">{{ $weather->humidity ?? '-' }}</td> -->
                         <td class="text-wrap">{{ \Carbon\Carbon::parse($weather->forecast_date)->format('F j, Y') ?? '-' }}</td>
                         <!-- <td class="text-wrap">{{ $weather->date_accessed ?? '-' }}</td> -->
                         <td class="text-wrap">{{ $weather->wind_mps ?? '-' }}</td>
-                        <td class="text-wrap">{{ $weather->direction ?? '-' }}</td>
+                        <!-- <td class="text-wrap">{{ $weather->direction ?? '-' }}</td> -->
                         @if (auth()->user()->hasPermission('View Weather') || auth()->user()->hasPermission('Update Weather') || auth()->user()->hasPermission('Delete Weather'))
                         <td>
                         <div class="d-flex align-items-center">
@@ -167,8 +169,8 @@
             <th><x-sortable-column field="forecast_date" label="Forecast Date" route="weather.index" /></th>
             <!-- <th><x-sortable-column field="date_accessed" label="Date Accessed" route="weather.index" /></th> -->
             <th><x-sortable-column field="wind_mps" label="Wind Speed (m/s)" route="weather.index" /></th>
-            <th><x-sortable-column field="Direction" label="Direction" route="weather.index" /></th>
-            @if(Auth::user()->user_type != 'User Type 1' && Auth::user()->user_type != 'Viewer' )
+            <!-- <th><x-sortable-column field="Direction" label="Direction" route="weather.index" /></th> -->
+            @if (auth()->user()->hasPermission('View Weather') || auth()->user()->hasPermission('Update Weather') || auth()->user()->hasPermission('Delete Weather'))
             <th>Actions</th>
             @endif
         </tr>
@@ -235,14 +237,19 @@ $(document).ready(function () {
                             if (@json(Auth::user()->user_type) !== 'Viewer') {
                                 actionColumn = `<td class="text-wrap">
                                 <div class="d-flex align-items-center">
-                                    <a href="/table1/${weather.id}/show" class="text-primary me-2" title="View">
-                                        <i class='bx bx-show'></i>
-                                    </a>
+                                    @if (auth()->user()->hasPermission('View Weather'))
+                                        <a href="/table1/${weather.id}/show" class="text-primary me-2" title="View">
+                                            <i class='bx bx-show'></i>
+                                        </a>
+                                    @endif
                                     <!-- Update Icon -->
+                                    @if (auth()->user()->hasPermission('Update Weather'))
                                     <a href="/table1/${weather.id}/edit" class="text-warning me-2" title="Update">
                                         <i class="bx bx-edit-alt"></i>
                                     </a>
+                                    @endif
                                     <!-- Delete Icon -->
+                                    @if (auth()->user()->hasPermission('Delete Weather'))
                                     <form action="/table1/${weather.id}" method="POST" id="deleteForm${weather.id}" style="display: inline;">
                                         @csrf
                                         @method('DELETE')
@@ -250,6 +257,7 @@ $(document).ready(function () {
                                                 <i class="bx bx-trash"></i>
                                             </a>
                                         </form>
+                                    @endif
                                     </div>
                             </td>`;
                             }
@@ -261,7 +269,7 @@ $(document).ready(function () {
                                 <td class="text-wrap">${cloudCoverFormatted }</td>
                                 <td class="text-wrap">${forecastDateFormatted }</td>
                                 <td class="text-wrap">${weather.wind_mps }</td>
-                                <td class="text-wrap">${weather.direction }</td>
+                                
                                 ${actionColumn}
                             </tr>`;
                         tableBody.append(row);
@@ -489,4 +497,24 @@ $(document).ready(function () {
         });
 </script>
 
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const notificationIcon = document.getElementById('notificationIcon');
+    const notificationContainer = document.getElementById('notificationContainer');
+
+    notificationIcon.addEventListener('click', () => {
+      notificationContainer.classList.toggle('d-none');
+    });
+
+    // Close notification container when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!notificationIcon.contains(event.target) && !notificationContainer.contains(event.target)) {
+        notificationContainer.classList.add('d-none');
+      }
+    });
+  });
+</script>
+
+<!-- <td class="text-wrap">${weather.direction }</td> -->
 @endsection

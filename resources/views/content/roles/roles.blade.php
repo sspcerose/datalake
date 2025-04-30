@@ -12,10 +12,12 @@
   <div class="row align-items-center">
     <!-- Left Section: Add, Import, Export buttons -->
     <div class="col-md-6 d-flex justify-content-start">
-    @if(Auth::user()->user_type != 'User Type 1' && Auth::user()->user_type != 'Viewer' )
+    @if (auth()->user()->hasPermission('Create Roles'))
         <a class="btn btn-primary btn-sm d-flex align-items-center me-3" href="{{ route('roles.getTable') }}">
             <i class="bx bx-plus-circle me-2"></i> Add
         </a>
+        @endif
+        @if (auth()->user()->hasPermission('Update Roles'))
         <a class="btn btn-warning btn-sm d-flex align-items-center me-3" href="{{ route('role.edit') }}">
             <i class="bx bx-edit-alt me-2"></i> Edit
         </a>

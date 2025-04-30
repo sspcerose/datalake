@@ -1,7 +1,7 @@
 
 @extends('layouts/blankLayout')
 
-@section('title', 'Login Basic - Pages')
+@section('title', 'Reset Password')
 
 @section('page-style')
 @vite([
@@ -17,15 +17,16 @@
       <div class="card px-sm-6 px-0">
         <div class="card-body">
           <!-- Logo -->
-          <div class="app-brand justify-content-center">
+          <div class="app-brand">
             <a href="{{url('/')}}" class="app-brand-link gap-2">
-              <span class="app-brand-logo demo">@include('_partials.macros',["width"=>25,"withbg"=>'var(--bs-primary)'])</span>
-              <span class="app-brand-text demo text-heading fw-bold">{{config('variables.templateName')}}</span>
+              <!-- <span class="app-brand-logo demo">@include('_partials.macros',["width"=>25,"withbg"=>'var(--bs-primary)'])</span>
+              <span class="app-brand-text demo text-heading fw-bold">{{config('variables.templateName')}}</span> -->
+              <img src="{{ asset('assets/img/favicon/data-lake-logo.png') }}" alt="Logo" style="height: 85px; width: auto;" />
             </a>
           </div>
           <!-- /Logo -->
-          <h4 class="mb-1">Welcome to {{config('variables.templateName')}}! 👋</h4>
-          <p class="mb-6">Please sign-in to your account and start the adventure</p>
+          <h4 class="mb-1">Reset Password</h4>
+          <p class="mb-6">Make sure it's strong and easy for you to remember</p>
 
           <form id="formAuthentication" class="mb-6" action="{{ route('password.update1') }}"  method="POST">
             @csrf

@@ -179,7 +179,5 @@ class Table1Controller extends Controller
                 'data' => $samples->items(),
                 'links' => $samples->links('vendor.pagination.bootstrap-5')->render()
             ]);
-            // dd($samples);
-        
     }
 }

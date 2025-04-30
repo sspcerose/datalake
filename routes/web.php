@@ -60,8 +60,8 @@ Route::middleware(['auth'])->group(function () {
 
     // LARAVEL EXCEL
     // Import#x2
-    Route::middleware('permission:Import User')->get('/import-users', function () {return view('import');});
-    Route::middleware('permission:Import User')->post('/import-users', [ImportController::class, 'importUsers'])->name('import.users');
+    // Route::middleware('permission:Import User')->get('/import-users', function () {return view('import');});
+    Route::post('/import-users', [ImportController::class, 'importUser'])->name('import.users');
     // Route::post('/import-table1', [ImportController::class, 'importTable1'])->middleware('role')->name('import.table1');
     // Export#x2
     // Route::get('/export-users', [ExportController::class, 'export'])->middleware('role')->name('export.users');
@@ -91,10 +91,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:Create Roles')->get('roles/create', [RoleController::class, 'create'])->name('roles.create');
     Route::middleware('permission:Create Roles')->get('roles/getTable', [RoleController::class, 'getTable'])->name('roles.getTable');
     Route::middleware('permission:Create Roles')->post('roles', [RoleController::class, 'store'])->name('roles.store');
-    Route::middleware('permission:Edit Roles')->get('roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
-    Route::middleware('permission:Edit Roles')->put('roles/{role}', [RoleController::class, 'update'])->name('roles.update');
+    Route::middleware('permission:Update Roles')->get('roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+    Route::middleware('permission:Update Roles')->put('roles/{role}', [RoleController::class, 'update'])->name('roles.update');
     Route::middleware('permission:Delete Roles')->delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
-    Route::middleware('permission:Edit Roles')->get('/role-layout', [RoleController::class, 'edit'])->name('role.edit');
+    Route::middleware('permission:Update Roles')->get('/role-layout', [RoleController::class, 'edit'])->name('role.edit');
 
     Route::middleware('permission:Edit Roles')->put('/permissions/update', [RoleController::class, 'updatePermission'])->name('permissions.update');
 // });
@@ -112,7 +112,7 @@ Route::middleware(['auth'])->group(function () {
     // AUTHENTICATION
     Route::get('/auth/login-basic', [LoginBasic::class, 'index'])->name('auth-login-basic');
     Route::post('/auth/login-basic', [LoginBasic::class, 'login'])->name('auth-login-basic2');
-    Route::post('/logout', [LoginBasic::class, 'logout'])->name('logout');
+    Route::get('/logout', [LoginBasic::class, 'logout'])->name('logout');
 
     // FORGOT PASSWORD
     Route::get('/auth/forgot-password-basic', [ForgotPasswordBasic::class, 'index'])->name('auth-reset-password-basic');
@@ -121,3 +121,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('password/reset/update', [ForgotPasswordBasic::class, 'resetPassword'])->name('password.update1');
 
    
+
+    Route::get('/default-page', function () {
+        return view('content.default-page');
+    })->name('default-page');
