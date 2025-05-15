@@ -367,6 +367,8 @@ class ImportController extends Controller
     public function weatherProcess(Request $request)
     {
         // dd(auth()->id());
+        $path = request()->path();
+        $lastSegment = last(explode('/', $path));
 
         $request->validate([
             'file' => 'required|mimes:csv,txt,xlsx',
@@ -394,7 +396,7 @@ class ImportController extends Controller
     
         // Check if this is the last chunk
         if ($index + 1 == $totalChunks) {
-            return $this->mergeChunksAndProcess($fileName, $tempPath);
+            return $this->mergeChunksAndProcess($fileName, $tempPath, $lastSegment);
         }
         
     
@@ -402,7 +404,7 @@ class ImportController extends Controller
     }
 
     // For Merging chunked files
-    private function mergeChunksAndProcess($fileName, $tempPath)
+    private function mergeChunksAndProcess($fileName, $tempPath, $lastSegment)
     {
         
         $tempPath = storage_path("app/temp_chunks/{$fileName}");
@@ -421,7 +423,7 @@ class ImportController extends Controller
         
 
         // Dispatch the Job 
-        ProcessFileUploadJob::dispatch($fileName, Auth::id());
+        ProcessFileUploadJob::dispatch($fileName, Auth::id(), $lastSegment);
 
         // return $this->callDataInsertion($finalFilePath);
         return response()->json(['success' => true, 'message' => 'File uploaded and queued for processing.']);

@@ -65,11 +65,17 @@ class checkPermission
 
     public function handle($request, Closure $next, $permission)
     {
-        if (!auth()->user() || !auth()->user()->hasPermission($permission)) {
-            // abort(403, 'Unauthorized action.');
-            return back();
-        }
+        // From dynamic route 
+       if (strpos($permission, '{table}') !== false) {
+        $table = $request->route('table');
 
+        $permission = str_replace('{table}', $table, $permission);
+        }
+        // dd($permission);
+        if (!auth()->user() || !auth()->user()->hasPermission($permission)) {
+            return back()->withErrors(['permission' => 'You do not have access to this resource.']);
+        }
+        
         return $next($request);
-    }
+        }
 }

@@ -26,7 +26,7 @@ class RoleController extends Controller
 
     public function getTable()
     {
-        $excludedTables = ['migrations', 'password_resets', 'password_reset_tokens', 'failed_jobs', 'cache', 'cache_locks', 'job_batches', 'jobs', 'sessions','permissions','role_permission','samples', 'jobs_done', 'histories'];
+        $excludedTables = ['migrations', 'password_resets', 'password_reset_tokens', 'failed_jobs', 'cache', 'cache_locks', 'job_batches', 'jobs', 'sessions','permissions','role_permission', 'jobs_done', 'histories'];
 
         $tables = DB::select("
             SELECT tablename 
@@ -96,7 +96,7 @@ class RoleController extends Controller
                 $role->permissions()->detach(); 
             }
         }
-            return redirect()->route('roles.index')->with('success', 'Permissions updated successfully!');
+            return redirect()->route('roles.edit')->with('success', 'Permissions updated successfully!');
         }
         
     public function update(Request $request, Role $role)

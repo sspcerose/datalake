@@ -14,6 +14,8 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
+        // 1. RUN THIS SEEDER AFTER MIGRATING THE DATABASE (php artisan db:seed --class=RolePermissionSeeder)
+        // For creating roles and assigning permissions
         // Create roles
         $adminRole = Role::create(['name' => 'Super Admin']);
         $adminRole1 = Role::create(['name' => 'Admin']);
@@ -24,24 +26,12 @@ class RolePermissionSeeder extends Seeder
             'Create Roles' => 'roles',
             'Edit Roles' => 'roles',
             'Delete Roles' => 'roles',
-            'View Histories' => 'histories',
-            'Import Histories' => 'histories',
-            'Update Histories' => 'histories',
-            'Delete Histories' => 'histories',
-            'Export Histories' => 'histories',
-            'View Weather' => 'weather',
-            'Import Weather' => 'weather',
-            'Update Weather' => 'weather',
-            'Delete Weather' => 'weather',
-            'Export Weather' => 'weather',
             'View Users' => 'users',
             'Create Users' => 'users',
             'Update Users' => 'users',
             'Delete Users' => 'users',
-            // 'Import Users' => 'users',
-            // 'Export Users' => 'users',
         ];
-    
+        
         foreach ($permissions as $permissionName => $permissionTo) {
             Permission::create([
                 'name' => $permissionName,
@@ -56,4 +46,5 @@ class RolePermissionSeeder extends Seeder
         // Assign limited permissions to User
         $userRole->permissions()->attach(Permission::where('name', 'View Roles')->get());
     }
+    // 2. RUN php artisan db:seed for creating users 
 }

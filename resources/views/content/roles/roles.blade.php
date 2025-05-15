@@ -17,7 +17,7 @@
             <i class="bx bx-plus-circle me-2"></i> Add
         </a>
         @endif
-        @if (auth()->user()->hasPermission('Update Roles'))
+        @if (auth()->user()->hasPermission('Edit Roles'))
         <a class="btn btn-warning btn-sm d-flex align-items-center me-3" href="{{ route('role.edit') }}">
             <i class="bx bx-edit-alt me-2"></i> Edit
         </a>
@@ -93,6 +93,5 @@
         });
     </script>
 @endif
-
 
 @endsection

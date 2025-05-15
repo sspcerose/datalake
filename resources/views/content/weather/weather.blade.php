@@ -20,9 +20,25 @@
             </a>
           @endif
           @if (auth()->user()->hasPermission('Import Weather'))
-            <button class="btn btn-sm d-flex align-items-center me-3 text-white" style="background-color: #539812;" id="importButton" data-bs-toggle="modal" data-bs-target="#modalCenter">
+            
+            <!-- <button class="btn btn-sm d-flex align-items-center me-3 text-white" style="background-color: #539812;" id="importButton" data-bs-toggle="modal" data-bs-target="#modalCenter">
               <i class="bx bx-import me-2"></i> Import
-            </button>
+            </button> -->
+            <button class="btn btn-sm d-flex align-items-center me-3 text-white"
+                  style="background-color: #539812;"
+                  id="importButton"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modalCenter"
+                  @if(!empty($import_process) && ($import_process->status ?? null) === 'on going') 
+                      disabled 
+                  @endif>
+              <i class="bx bx-import me-2"></i>
+              @if(!empty($import_process) && ($import_process->status ?? null) === 'on going') 
+                  Importing 
+              @else 
+                  Import 
+              @endif
+          </button>
           @endif
           @if (auth()->user()->hasPermission('Export Weather'))
             <a href="{{ route('export.weather') }}" class="btn btn-warning btn-sm d-flex align-items-center">
@@ -44,7 +60,7 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalCenterTitle">IMPORT CSV</h5>
+        <h5 class="modal-title" id="modalCenterTitle">IMPORT FILE</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -56,19 +72,31 @@
           </div>
           <!-- Progress Bar -->
           <div id="progressContainer" class="d-none mt-4">
-            <label for="progressBar" class="form-label">Import Progress</label>
-            <div class="progress">
-              <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                <p id="progressText" class="text-center mt-2">0%</p>
+            <label for="progressBar" class="form-label">Uploading</label>
+            <div class="progress" style="height: 15px;">
+              <div id="progressBar" class="progress-bar bg-primary"  role="progressbar"  style="" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <p id="progressText" class="text-center my-2">0%</p>
               </div>
             </div>
           </div>
+
+          <!-- Import Progress Bar
+          <div id="importProgressContainer" class="d-none mt-4">
+            <label for="importProgressBar" class="form-label">Import Progress</label>
+            <div class="Importprogress" style="height: 15px;">
+              <div id="importProgressBar" class="progress-bar bg-success" role="importprogressbar"  style="" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <p id="importProgressText" class="text-center my-2">0%</p>
+              </div>
+            </div>
+          </div> -->
+
+          
           <!-- Message -->
           <div id="message" class="mt-4"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-success" id="uploadButton">Import</button>
+        <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn text-white" id="uploadButton" style="background-color: #539812;">Import</button>
       </div>
       <!-- </form> -->
        <!-- Progress -->
@@ -152,6 +180,49 @@
       {{ $weatherData->links(('vendor.pagination.bootstrap-5')) }}
     </div>
 </div>
+
+<!-- <div id="importProgressContainer" class="toast-container position-fixed bottom-0 end-0 p-3 d-none" style="z-index: 1055;">
+<button type="button" class="btn-close btn-close-white " data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="toast show align-items-center border-1" style="border: 2px solid rgb(216, 222, 225); border-radius: 5px;  border-color: gray; box-shadow: 0px 0px 5px gray;">
+        
+    <div class="d-flex">
+      <div class="toast-body" style="width: 100%;">
+        <div class="progress" style="height: 15px;">
+          <div id="importProgressBar" class="progress-bar bg-primary" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <span id="importProgressText" class="text-white">0%</span>
+          </div>
+        </div>
+        New element for showing rows processed -->
+        <!-- <div id="importProgressDetails" class="mt-2 text-muted small text-center">
+          0 / 0
+        </div>
+      </div> -->
+      <!-- <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button> -->
+    <!-- </div>
+  </div>
+</div> -->
+
+<div id="importProgressContainer" class="bs-toast toast toast-placement-ex m-4 fade bottom-0 end-0 hide" role="alert" aria-live="assertive" aria-atomic="true" 
+          style="background-color:rgb(255, 255, 255); border: 1px solid rgb(193, 187, 187);  opacity:1;">
+
+          <div class="toast-header">
+            <i class='bx bx-bell me-2'></i>
+            <div class="me-auto fw-medium">Inserting</div>
+            <!-- <small>11 mins ago</small> -->
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">
+          <div class="progress" style="height: 15px;">
+          <div id="importProgressBar" class="progress-bar bg-primary" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <span id="importProgressText" class="text-white">0%</span>
+          </div>
+        </div>
+        <!-- New element for showing rows processed -->
+        <div id="importProgressDetails" class="mt-2 text-muted small text-center">
+          0 / 0
+        </div>
+          </div>
+        </div>
 
 <!-- Search -->
 <table class="table" id="resultsTable">
@@ -328,10 +399,27 @@ $(document).ready(function () {
 
 
 <script>
-    function updateStatus(message, type = 'info') {
-    const statusDiv = $('#uploadStatus');
-    let color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'blue';
-    statusDiv.html(`<p style="color:${color};">${message}</p>`);
+    //Progress Bar 
+    function updateStatus(progress) {
+    progress = Math.min(Math.max(progress, 0), 100);
+
+    console.log('Progress:', progress); 
+
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const progressContainer = document.getElementById('progressContainer');
+
+    if (progressBar && progressText && progressContainer) {
+        progressBar.style.width = `${progress}%`;
+        progressBar.setAttribute('aria-valuenow', progress);
+        progressText.textContent = `${Math.round(progress)}%`;
+
+        if (progress > 0 && progressContainer.classList.contains('d-none')) {
+        progressContainer.classList.remove('d-none');
+        }
+    } else {
+        console.error('Progress bar elements not found in DOM.');
+    }
 }
 
    $('#uploadButton').click(async function (e) {
@@ -396,13 +484,14 @@ $(document).ready(function () {
                         uploadedChunks++;
                         let progress = Math.round((uploadedChunks / Math.ceil(totalSize / chunkSize)) * 100);
                         console.log('Upload Progress:', progress + '%');
-                        updateStatus(`Uploading... ${progress}%`, 'info');
+                        // updateStatus(`Uploading... ${progress}%`, 'info');
+                        updateStatus(progress);
 
                         if (uploadedChunks === Math.ceil(totalSize / chunkSize)) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Upload Complete',
-                                text: 'File uploaded successfully. Processing and inserting data...',
+                                text: 'File uploaded successfully!',
                                 willOpen: () => {
                                     const swalContainer = document.querySelector('.swal2-container');
                                     if (swalContainer) {
@@ -471,6 +560,92 @@ $(document).ready(function () {
 });
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const progressBar = document.getElementById('importProgressBar');
+  const progressText = document.getElementById('importProgressText');
+  const progressContainer = document.getElementById('importProgressContainer');
+  const progressDetails = document.getElementById('importProgressDetails'); 
+
+  const toast = new bootstrap.Toast(progressContainer); 
+
+  const intervalId = setInterval(() => {
+    fetch('/table-import-status') /
+      .then(response => {
+        if (response.status === 204) {
+          console.log('Import is complete. Interval stopped.');
+          // location.reload();
+          progressDetails.textContent = "Completed";
+          clearInterval(intervalId); 
+          toast.hide(); 
+
+        //   setTimeout(() => {
+        //     toast.hide();
+        //     progressDetails.textContent = "";
+        // }, 30000); 
+
+          return null; 
+        } else if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error(`Unexpected response: ${response.status}`);
+        }
+      })
+      .then(data => {
+        if (!data) return; 
+
+        const progress = (data.rows_processed / data.total_rows) * 100;
+
+        console.log('Progress:', progress); // Debug log for progress value
+
+        // Format numbers with commas
+        const rowsProcessedFormatted = data.rows_processed.toLocaleString();
+        const totalRowsFormatted = data.total_rows.toLocaleString();
+
+        // Update progress bar width and text
+        progressBar.style.width = `${progress}%`;
+        progressBar.setAttribute('aria-valuenow', Math.round(progress));
+        progressText.textContent = `${Math.round(progress)}%`;
+
+        // Update the progress details
+        progressDetails.textContent = `${rowsProcessedFormatted} / ${totalRowsFormatted}`;
+
+        // Show the progress bar if hidden and progress has started
+        if (progress > 0 && progressContainer.classList.contains('hide')) {
+          toast.show(); // Show the toast
+          progressContainer.classList.remove('hide');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching progress:', error);
+        clearInterval(intervalId); 
+      });
+  }, 1000);
+});
+
+</script>
+
+<!-- Notification -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const notificationIcon = document.getElementById('notificationIcon');
+    const notificationContainer = document.getElementById('notificationContainer');
+
+    notificationIcon.addEventListener('click', () => {
+      notificationContainer.classList.toggle('d-none');
+    });
+
+    // Close notification container when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!notificationIcon.contains(event.target) && !notificationContainer.contains(event.target)) {
+        notificationContainer.classList.add('d-none');
+      }
+    });
+  });
+</script>
+
+
+<!-- THIRD PARTY [Pusher] (NOT WORKING) might be useful in the future-->
 <!-- Real Time Update (In Progress) -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
@@ -498,23 +673,5 @@ $(document).ready(function () {
 </script>
 
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const notificationIcon = document.getElementById('notificationIcon');
-    const notificationContainer = document.getElementById('notificationContainer');
 
-    notificationIcon.addEventListener('click', () => {
-      notificationContainer.classList.toggle('d-none');
-    });
-
-    // Close notification container when clicking outside
-    document.addEventListener('click', (event) => {
-      if (!notificationIcon.contains(event.target) && !notificationContainer.contains(event.target)) {
-        notificationContainer.classList.add('d-none');
-      }
-    });
-  });
-</script>
-
-<!-- <td class="text-wrap">${weather.direction }</td> -->
 @endsection

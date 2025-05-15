@@ -11,6 +11,7 @@ use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\table1\Table1Controller;
 use App\Http\Controllers\weather\WeatherController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\dynamic\DynamicController;
 
 
 Route::middleware(['auth'])->group(function () {
@@ -91,10 +92,11 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:Create Roles')->get('roles/create', [RoleController::class, 'create'])->name('roles.create');
     Route::middleware('permission:Create Roles')->get('roles/getTable', [RoleController::class, 'getTable'])->name('roles.getTable');
     Route::middleware('permission:Create Roles')->post('roles', [RoleController::class, 'store'])->name('roles.store');
-    Route::middleware('permission:Update Roles')->get('roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
-    Route::middleware('permission:Update Roles')->put('roles/{role}', [RoleController::class, 'update'])->name('roles.update');
+    Route::middleware('permission:Edit Roles')->get('roles/edit', [RoleController::class, 'edit'])->name('roles.edit');
+    // Route::middleware('permission:Edit Roles')->get('roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+    Route::middleware('permission:Edit Roles')->put('roles/{role}', [RoleController::class, 'update'])->name('roles.update');
     Route::middleware('permission:Delete Roles')->delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
-    Route::middleware('permission:Update Roles')->get('/role-layout', [RoleController::class, 'edit'])->name('role.edit');
+    Route::middleware('permission:Edit Roles')->get('/role-layout', [RoleController::class, 'edit'])->name('role.edit');
 
     Route::middleware('permission:Edit Roles')->put('/permissions/update', [RoleController::class, 'updatePermission'])->name('permissions.update');
 // });
@@ -105,6 +107,42 @@ Route::middleware(['auth'])->group(function () {
     // CHANGE PASSWORD - New Users
     Route::get('/password/change', [LoginBasic::class, 'showChangeForm'])->name('password.change');
     Route::post('/password/change', [LoginBasic::class, 'update'])->name('password.update');
+
+    // Import Status
+    Route::get('/table-import-status', function () {
+        $status = DB::table('import_status')
+                    ->where('user_id', auth()->id())
+                    ->first();
+    
+        if ($status && $status->rows_processed === $status->total_rows) {
+            $update_status = DB::table('import_status')
+                ->where('user_id', auth()->id())
+                ->where('task_name', 'process')  
+                ->update(['status' => 'completed']);
+
+            return response(null, 204);
+        }
+    
+        return response()->json([
+            'rows_processed' => $status->rows_processed ?? 0,
+            'total_rows' => $status->total_rows ?? 0,
+        ]);
+    });
+    
+
+    Route::middleware('permission:View {table}')->get('/tables/{table?}', [DynamicController::class, 'index'])->name('table.viewer');
+    Route::middleware('permission:Export {table}')->get('/tables/{table}/export', [DynamicController::class, 'export'])->name('table.export');
+    // Route::post('/import/{table}', [ImportController::class, 'import'])->name('table.import');
+    Route::post('/tables/{table}/import-process', [DynamicController::class, 'importProcess'])->name('table.import.process');
+    Route::get('/tables/{table}/import-status', [DynamicController::class, 'importStatus'])->name('table.import.status');
+    Route::prefix('tables/{table}')->group(function () {
+        Route::middleware('permission:Create {table}')->get('/create', [DynamicController::class, 'create'])->name('table.create');
+        Route::middleware('permission:Create {table}')->post('/store', [DynamicController::class, 'store'])->name('table.store');
+        Route::middleware('permission:View {table}')->get('/view/{id}', [DynamicController::class, 'view'])->name('table.view');
+        Route::middleware('permission:Update {table}')->get('/edit/{id}', [DynamicController::class, 'edit'])->name('table.edit');
+        Route::middleware('permission:Update {table}')->put('/update/{id}', [DynamicController::class, 'update'])->name('table.update');
+        Route::middleware('permission:Delete {table}')->delete('/delete/{id}', [DynamicController::class, 'destroy'])->name('table.delete');
+    });
 
 
 });
@@ -124,4 +162,4 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/default-page', function () {
         return view('content.default-page');
-    })->name('default-page');
+    })->name('default-pa');

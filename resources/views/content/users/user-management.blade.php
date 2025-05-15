@@ -150,7 +150,7 @@
           <td>{{ $user->email }}</td>
           @if($user->status == 'active')
             <td><span class="badge bg-label-primary me-1">Active</span></td>
-          @else
+          @elseif($user->status == 'inactive')
             <td><span class="badge bg-label-danger me-1">Inactive</span></td>
           @endif
 

@@ -5,7 +5,6 @@
 @section('content')
 
 <div class="container d-flex justify-content-center">
-  <!-- Combined Container -->
   <div class="row col-md-12">
     <!-- Update Profile Card -->
     <div class="col-md-6">
@@ -174,7 +173,56 @@
         <div class="card-body">
           <form method="POST" action="{{ route('password.update') }}" id="changePassForm">
             @csrf
-            <div class="row mb-6 form-password-toggle">
+             <div class="mb-6 form-password-toggle">
+              <label class="form-label" for="password">Current Password</label>
+              <div class="input-group input-group-merge">
+              <input 
+                type="password" 
+                class="form-control" 
+                id="current_password" 
+                name="current_password" 
+                placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" 
+               />
+               <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+              </div>
+              @error('current_password')
+                <span class="text-danger small font-weight-bold d-block mt-1">{{ $message }}</span>
+              @enderror
+            </div>
+
+            <div class="mb-6 form-password-toggle">
+              <label class="form-label" for="password">New Password</label>
+              <div class="input-group input-group-merge">
+              <input 
+                type="password" 
+                class="form-control" 
+                id="new_password" 
+                name="new_password" 
+                placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" 
+               />
+               <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+              </div>
+              @error('new_password')
+                <span class="text-danger small font-weight-bold d-block mt-1">{{ $message }}</span>
+              @enderror
+            </div>
+
+            <div class="mb-6 form-password-toggle">
+              <label class="form-label" for="password">Confirm Password</label>
+              <div class="input-group input-group-merge">
+              <input 
+                type="password" 
+                class="form-control" 
+                id="new_password_confirmation" 
+                name="new_password_confirmation" 
+                placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" 
+               />
+               <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+              </div>
+            </div>
+
+
+            <!-- <div class="row mb-6 form-password-toggle">
               <label class="col-sm-4 col-form-label"  for="password">Current Password</label>
               <div class="col-sm-8">
                 <div class="input-group input-group-merge">
@@ -206,7 +254,7 @@
                   <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                 </div>
               </div>
-            </div>
+            </div> -->
             <div class="row justify-content-end">
               <div class="col-sm-12">
                 <button type="submit" class="btn btn-warning me-3" id="confirmChangeButton">Change Password</button>
@@ -259,6 +307,8 @@
   });
 </script> -->
 
+
+<!-- For Form Validation (Not Working) might be useful in the future -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
@@ -485,6 +535,4 @@
 
 // });
 </script>
-
-
 @endsection

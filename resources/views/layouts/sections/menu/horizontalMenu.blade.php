@@ -21,7 +21,7 @@
         }
 </style>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-12 navbar-sticky navbar-shadow">
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-8 navbar-sticky navbar-shadow" style="opacity: 1;">
     <div class="container-fluid py-2">
 
         <!-- Mobile Hamburger + Logo -->
@@ -29,16 +29,14 @@
             <button class="navbar-toggler border-0 me-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <a class="navbar-brand" href="{{ route('dashboard-analytics')}}">
+            <a class="navbar-brand" href="{{ route('weather.index')}}">
                 <!-- <img src="{{ asset('assets/img/favicon/DATA LAKE.png') }}" alt="Logo" style="height: 30px;"> -->
             </a>
         </div>
 
-        <!-- Desktop Logo -->
-        <a class="navbar-brand d-none d-lg-block" href="{{ route('dashboard-analytics')}}">
-            <img src="{{ asset('assets/img/favicon/data-lake-logo.png') }}" alt="Logo" style="height: 40px;">
-            Data Lake
-        </a>
+        <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasStart" aria-controls="offcanvasStart">
+            <i class="bx bx-menu fs-3"></i>
+        </button>
 
         <div class="d-none d-lg-block mx-2" style="border-left: 1px solid #ccc; height: 40px;"></div>
 
@@ -47,18 +45,19 @@
                 ['icon' => 'bx-cloud', 'route' => 'weather.index', 'label' => 'Weather', 'name' => 'Weather', 'permission' => 'View Weather'],
                 ['icon' => 'bx-user', 'route' => 'user-management', 'label' => 'Users', 'name' => 'Users', 'permission' => 'View Users'],
                 ['icon' => 'bx-lock-alt', 'route' => 'roles.index', 'label' => 'Permissions', 'name' => 'Permissions', 'permission' => 'View Roles'], -->
-        @php
+                <!-- ['route' => 'dashboard-analytics', 'label' => 'Home', 'name' => 'Home', 'permission' => null], -->
+        <!-- @php
             $navItems = [
-               
-                ['route' => 'dashboard-analytics', 'label' => 'Home', 'name' => 'Home', 'permission' => null],
+                
                 ['route' => 'weather.index', 'label' => 'Weather Table', 'name' => 'Weather', 'permission' => 'View Weather'],
                 ['route' => 'user-management', 'label' => 'Users', 'name' => 'Users', 'permission' => 'View Users'],
-                ['route' => 'roles.index', 'label' => 'Roles and Permissions', 'name' => 'Permissions', 'permission' => 'View Roles'],
+                ['route' => 'roles.edit', 'label' => 'Roles and Permissions', 'name' => 'Permissions', 'permission' => 'View Roles'],
             ];
-        @endphp
+        @endphp -->
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-lg-3">
+        
+            <!-- <ul class="navbar-nav ms-lg-3">
                 @foreach ($navItems as $menu)
                     @if (
                         isset($menu['permission']) === false || 
@@ -73,11 +72,14 @@
                         </li>
                     @endif
                 @endforeach
-            </ul>
+            </ul> -->
+            <!-- Logo -->
+            <a class="navbar-brand d-none d-lg-block" href="{{ route('weather.index')}}">
+                <img src="{{ asset('assets/img/favicon/data-lake-logo.png') }}" alt="Logo" style="height: 40px;">
+                Data Lake
+            </a>
         </div>
-
-
-
+        
         <!-- <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-lg-3">
         <li class="nav-item">
@@ -168,6 +170,5 @@
             </li>
         </ul>
         </div>
-        </div>
-
+    </div>
 </nav>

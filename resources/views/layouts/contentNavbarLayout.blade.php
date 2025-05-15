@@ -22,10 +22,11 @@ $container = ($container ?? 'container-xxl');
 @section('layoutContent')
 
 @include('layouts/sections/menu/horizontalMenu')
-
+@include('layouts/sections/menu/offcanvas')
       <!-- Content wrapper -->
       <div class="content-wrapper col-11 py-6 mx-auto">
-
+        <!-- Content -->  
+            
             @yield('content')
 
           </div>

@@ -70,6 +70,7 @@
                                         @foreach($permissions as $permission)
                                             <tr>
                                                 <td>{{ explode(' ', $permission->name)[0] ?? $permission->name }}</td>
+                                                <!-- <td>{{ $permission->name }}</td> -->
                                                 <td>
                                                     <div class="form-check form-switch">
                                                         <input class="form-check-input" type="checkbox" name="permissions[super_admin][]" value="{{ $permission->id }}"
@@ -106,4 +107,16 @@
         </form>
     </div>
 </div>
+
+    @if(session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: "{{ session('success') }}",
+                showConfirmButton: true
+            });
+        </script>
+    @endif
+
 @endsection

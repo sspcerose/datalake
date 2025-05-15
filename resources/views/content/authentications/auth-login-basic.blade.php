@@ -23,7 +23,7 @@
             </a>
           </div>
           <!-- /Logo -->
-          <h4 class="mb-1 d-flex">Welcome!</h4>
+          <h4 class="mb-1 d-flex">Welcome to DATA LAKE!</h4>
           <p class="mb-6">Please sign-in to your account</p>
 
           <form id="formAuthentication" class="mb-6" action="{{ route('auth-login-basic2')}}" method="POST">

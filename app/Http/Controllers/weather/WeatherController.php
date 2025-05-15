@@ -33,7 +33,13 @@ class WeatherController extends Controller
         ->limit(5)
         ->get();
 
-        return view('content.weather.weather', compact('weatherData', 'sortField', 'sortOrder', 'jobsDone'));
+        $import_process = DB::table('import_status')
+            ->where('user_id', auth()->id()) 
+            ->where('task_name', 'process')
+            ->first(); 
+
+
+        return view('content.weather.weather', compact('weatherData', 'sortField', 'sortOrder', 'jobsDone', 'import_process'));
     }
 
     /**
