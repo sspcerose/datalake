@@ -34,7 +34,8 @@ class DynamicController extends Controller
             'permissions',
             'users',
             'jobs_done',
-            'import_status'
+            'import_status',
+            'histories'
         ];
 
         // Filter excluded tables
@@ -47,28 +48,29 @@ class DynamicController extends Controller
 
         // If table exist
         if ($selectedTable && in_array($selectedTable, $filteredTableNames)) {
-            //get the columns of selected table
             $columns = Schema::getColumnListing($selectedTable);
-            // get the rows of selected table
+        
             $query = DB::table($selectedTable);
-            
-            // search
+
+            // Search
             if ($request->has('query')) {
-                $searchQuery = $request->input('query');
-                foreach ($columns as $column) {
-                    $query->orWhere($column, 'ilike', '%' . $searchQuery . '%');
+                    $searchQuery = $request->input('query');
+                    foreach ($columns as $column) {
+                        $query->orWhere($column, 'ilike', '%' . $searchQuery . '%');
+                    }
                 }
-            }
+                // Sort
+                $sortField = $request->input('sort_field');
+                $sortOrder = $request->input('sort_order', 'asc');
+                if ($sortField && $sortOrder !== 'none' && in_array($sortField, $columns)) {
+                    $query->orderBy($sortField, $sortOrder);
+                } else {
+                    if (in_array('created_at', $columns)) {
+                        $query->orderBy('created_at', 'desc');
+                    }
+                }
 
-            // sort (column, order)
-            $sortField = $request->input('sort_field');
-            $sortOrder = $request->input('sort_order', 'asc');
-
-            if ($sortField && $sortOrder !== 'none' && in_array($sortField, $columns)) {
-                $query->orderBy($sortField, $sortOrder);
-            }
-
-            $rows = $query->paginate(20);
+                $rows = $query->paginate(20);
 
             // for data columns
             foreach ($rows as $row) {
@@ -88,11 +90,29 @@ class DynamicController extends Controller
             }
         }
 
+        $import_process = DB::table('import_status')
+            ->where('user_id', auth()->id()) 
+            ->where('task_name', $selectedTable)
+            ->first(); 
+
+        // Add
+        $columns = Schema::getColumnListing($selectedTable);
+        $columnDetails = [];
+
+        // Get the data type of each column
+        foreach ($columns as $column) {
+            $type = \DB::getSchemaBuilder()->getColumnType($selectedTable, $column);
+            $columnDetails[] = ['name' => $column, 'type' => $type];
+        }
+
+
         return view('content.dynamic.dynamic', [
             'tableNames'    => $filteredTableNames,
             'selectedTable' => $selectedTable,
             'columns'       => $columns,
             'rows'          => $rows,
+            'import_process' => $import_process,
+            'columnDetails' => $columnDetails,
         ]);
     }
     
@@ -118,7 +138,8 @@ class DynamicController extends Controller
             'permissions',
             'users',
             'jobs_done',
-            'import_status'
+            'import_status',
+            'histories'
         ];
 
         $filteredTableNames = array_values(array_diff($tableNames, $excludedTables));
@@ -191,22 +212,36 @@ class DynamicController extends Controller
     public function edit($table, $id)
     {
         // Retrieve column details
+        // $columns = Schema::getColumnListing($table);
+        // $columnDetails = [];
+
+        // foreach ($columns as $column) {
+        //     $type = \DB::getSchemaBuilder()->getColumnType($table, $column);
+        //     $columnDetails[] = ['name' => $column, 'type' => $type];
+        // }
+
+        // // Fetch the record to be updated
+        // $record = DB::table($table)->find($id);
+
+        // if (!$record) {
+        //     return redirect()->route('table.viewer', $table)->withErrors(['error' => 'Record not found.']);
+        // }
+
+        // return view('content.dynamic.edit', compact('table', 'columnDetails', 'record'));
+
+         $record = DB::table($table)->find($id);
         $columns = Schema::getColumnListing($table);
         $columnDetails = [];
-
+        
         foreach ($columns as $column) {
             $type = \DB::getSchemaBuilder()->getColumnType($table, $column);
             $columnDetails[] = ['name' => $column, 'type' => $type];
         }
 
-        // Fetch the record to be updated
-        $record = DB::table($table)->find($id);
-
-        if (!$record) {
-            return redirect()->route('table.viewer', $table)->withErrors(['error' => 'Record not found.']);
-        }
-
-        return view('content.dynamic.edit', compact('table', 'columnDetails', 'record'));
+        return response()->json([
+            'record' => $record,
+            'columnDetails' => $columnDetails
+        ]);
     }
 
     public function update(Request $request, $table, $id)
@@ -290,13 +325,27 @@ class DynamicController extends Controller
 
     public function view($table, $id)
     {
-        $record = DB::table($table)->find($id);
+        // $record = DB::table($table)->find($id);
 
-        if (!$record) {
-            return redirect()->route('table.viewer', $table)->withErrors(['error' => 'Record not found.']);
+        // if (!$record) {
+        //     return redirect()->route('table.viewer', $table)->withErrors(['error' => 'Record not found.']);
+        // }
+
+        // return view('content.dynamic.view', compact('table', 'record'));
+
+        $record = DB::table($table)->find($id);
+        $columns = Schema::getColumnListing($table);
+        $columnDetails = [];
+        
+        foreach ($columns as $column) {
+            $type = \DB::getSchemaBuilder()->getColumnType($table, $column);
+            $columnDetails[] = ['name' => $column, 'type' => $type];
         }
 
-        return view('content.dynamic.view', compact('table', 'record'));
+        return response()->json([
+            'record' => $record,
+            'columnDetails' => $columnDetails
+        ]);
     }
 
     public function export($table)
@@ -406,6 +455,11 @@ class DynamicController extends Controller
 
             return response(null, 204);
         }
+
+       if ($status && $status->status === 'failed') {
+            return response()->json(['message' => 'Insert failed'], 400); 
+        }
+        
 
         return response()->json([
             'rows_processed' => $status->rows_processed,

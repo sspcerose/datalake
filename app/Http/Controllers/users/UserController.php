@@ -39,8 +39,10 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::find($id);
-        return view('content.users.user-show', compact('user'));
+        // $user = User::find($id);
+        // return view('content.users.user-show', compact('user'));
+        $user = User::findOrFail($id);
+        return response()->json($user);
     }
 
     /**
@@ -48,8 +50,10 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        $user = User::find($id);
-        return view('content.users.user-update', compact('user'));
+        // $user = User::find($id);
+        // return view('content.users.user-update', compact('user'));
+        $user = User::findOrFail($id);
+        return response()->json($user);
         
     }
 
@@ -58,6 +62,7 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        // dd($request->all());
         $validateData = $request->validate([
             'user_type' => 'required',
             'status' => 'required',

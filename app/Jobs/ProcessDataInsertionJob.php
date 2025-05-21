@@ -111,6 +111,13 @@ class ProcessDataInsertionJob implements ShouldQueue
                 ->where('task_name', $this->lastSegment)
                 ->update(['status' => 'completed']);
 
+            DB::table('jobs_done')->insert([
+                'user_id' => $this->userId,
+                'total_rows' => $insertedRows, 
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
             //if nothing fails, commit the transaction  
             DB::commit();
             // delete the file after processing
@@ -122,6 +129,8 @@ class ProcessDataInsertionJob implements ShouldQueue
             Log::error("CSV Import Failed for table {$this->lastSegment}: {$e->getMessage()}");
             // delete the file
             unlink($this->filePath);
+
+            $this->ImportStatus($status = 'failed');
         }
 
         $this->logTime('Total job runtime', $startTotal);
@@ -135,14 +144,21 @@ class ProcessDataInsertionJob implements ShouldQueue
         $mappedData = ['created_at' => now(), 'updated_at' => now()];
 
         foreach ($this->columns as $index => $column) {
-            if ($column === 'id' || $column === 'created_at' || $column === 'updated_at') {
+    
+            if ($column === 'created_at' || $column === 'updated_at') {
                 continue;
             }
 
             $value = $row[$index] ?? null;
 
         // Check if $value is not null and trim it
-        $mappedData[$column] = !empty(trim((string)$value)) ? $this->formatValue($column, $value) : null;
+        // $mappedData[$column] = !empty(trim((string)$value)) ? $this->formatValue($column, $value) : null;
+        //    $mappedData[$column] = isset($value) && trim((string)$value) !== '' ? $this->formatValue($column, $value) : null;
+        // $mappedData[$column] = (is_numeric($value) || (isset($value) && trim((string)$value) !== '')) 
+        // ? $this->formatValue($column, $value) 
+        // : null;
+            $trimmed = trim((string)$value);
+            $mappedData[$column] = ($trimmed !== '') ? $this->formatValue($this->columnTypes[$column], $trimmed) : null;
         }
 
         return $mappedData;
@@ -168,7 +184,8 @@ class ProcessDataInsertionJob implements ShouldQueue
             case 'timestamp':
                 return $this->fastParseDate($value, 'Y-m-d H:i:s');
             default:
-                return !empty($value) ? $value : null;
+                // return !empty($value) ? $value : null;
+                 return ($value === '0' || $value === 0 || !empty($value)) ? $value : '-';
         }
     }
 
@@ -184,17 +201,51 @@ class ProcessDataInsertionJob implements ShouldQueue
     }
 
     // Insertion
+    // public function insertBatch(array $data): int
+    // {
+    //     try {
+    //         // insert to the selected table (lastSegment)
+    //         DB::table($this->lastSegment)->UpdateOrInsert($data);
+    //         return count($data);
+    //     } catch (\Exception $e) {
+    //         throw $e;
+    //     }
+    // }
     public function insertBatch(array $data): int
-    {
-        try {
-            // insert to the selected table (lastSegment)
-            DB::table($this->lastSegment)->insert($data);
-            return count($data);
-        } catch (\Exception $e) {
-            throw $e;
+{
+    $insertedOrUpdated = 0;
+    
+    try {
+        foreach ($data as $record) {
+            // Extract the 'id' (or your unique key) for the WHERE condition
+            $id = $record['id'] ?? null;
+            
+            if ($id === null) {
+                // If no ID, perform a simple insert (new record)
+                DB::table($this->lastSegment)->insert($record);
+            } else {
+                // If ID exists, update or insert
+                DB::table($this->lastSegment)->updateOrInsert(
+                    ['id' => $id],  // WHERE condition (checks if 'id' exists)
+                    $record          // Data to insert/update
+                );
+            }
+            $insertedOrUpdated++;
         }
+        return $insertedOrUpdated;
+    } catch (\Exception $e) {
+        Log::error("Batch insert/update failed: " . $e->getMessage());
+        throw $e;
     }
+}
 
+    private function ImportStatus($status)
+    {
+        DB::table('import_status')
+            ->where('user_id', $this->userId)
+            ->where('task_name', $this->lastSegment)
+            ->update(['status' => $status]);
+    }
     // Real time increment
     private function incrementImportStatus($insertedCount)
     {

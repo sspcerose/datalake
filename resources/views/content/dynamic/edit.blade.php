@@ -7,7 +7,7 @@
       <div class="card-header d-flex align-items-center justify-content-between">
         <h5 class="mb-0">Edit Record in {{ ucfirst($table) }}</h5>
         <small class="text-muted float-end">
-          <a href="{{ route('dashboard-analytics') }}">Back</a>
+          <a href="javascript:history.back()">Back</a>
         </small>
       </div>
       <div class="card-body">
@@ -79,7 +79,7 @@
 
           <div class="mt-4">
             <button type="submit" class="btn btn-primary me-3">Update</button>
-            <a href="{{ route('dashboard-analytics') }}" class="btn btn-outline-danger">Cancel</a>
+            <a href="javascript:history.back()" class="btn btn-outline-danger">Cancel</a>
           </div>
         </form>
       </div>

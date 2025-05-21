@@ -142,7 +142,9 @@
                         <!-- <td class="text-wrap">{{ $weather->rainfall_description ?? '-' }}</td> -->
                         <td class="text-wrap">{{ ucwords(strtolower($weather->cloud_cover)) ?? '-' }}</td>
                         <!-- <td class="text-wrap">{{ $weather->humidity ?? '-' }}</td> -->
-                        <td class="text-wrap">{{ \Carbon\Carbon::parse($weather->forecast_date)->format('F j, Y') ?? '-' }}</td>
+                       <td class="text-wrap">
+                          {{ $weather->forecast_date ? \Carbon\Carbon::createFromFormat('d/m/Y', $weather->forecast_date)->format('F j, Y') : '-' }}
+                      </td>
                         <!-- <td class="text-wrap">{{ $weather->date_accessed ?? '-' }}</td> -->
                         <td class="text-wrap">{{ $weather->wind_mps ?? '-' }}</td>
                         <!-- <td class="text-wrap">{{ $weather->direction ?? '-' }}</td> -->

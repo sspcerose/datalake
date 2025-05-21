@@ -76,7 +76,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/progress', [ImportController::class, 'getProgress'])->name('progress');
 
     // Weather
-    Route::middleware('permission:View Weather')->get('weather', [WeatherController::class, 'index'])->name('weather.index');
+    Route::middleware('permission:View weather')->get('weather', [WeatherController::class, 'index'])->name('weather.index');
     Route::middleware('permission:Create Weather')->get('weather/create', [WeatherController::class, 'create'])->name('weather.create');
     Route::middleware('permission:View Weather')->get('weather/{weather}', [WeatherController::class, 'show'])->name('weather.show');
     Route::middleware('permission:Create Weather')->post('weather', [WeatherController::class, 'store'])->name('weather.store');

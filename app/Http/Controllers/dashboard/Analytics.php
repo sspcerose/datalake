@@ -62,9 +62,10 @@ return view('content.table1.table1', compact('city_mun_code'));
         // if (Auth::user()->user_type == 'Admin' || Auth::user()->user_type == 'User Type 1') {
         $query = DB::table('users')
                 ->where('user_type', '!=', 'Super Admin');
+                
 
         if ($request->filled('filter')) {
-            $query->where('user_type', 'like', '%' . $request->filter . '%');
+            $query->where('user_type', $request->filter);
         }
 
         if ($sortOrder !== 'none') {
@@ -78,6 +79,8 @@ return view('content.table1.table1', compact('city_mun_code'));
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
+
+        // dd($users);
 
         return view('content.users.user-management', compact('users', 'sortField', 'sortOrder', 'jobsDone'));
     }

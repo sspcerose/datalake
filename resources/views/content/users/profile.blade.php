@@ -126,13 +126,13 @@
             </div> -->
 
             <div class="row mb-6">
-              <label class="col-sm-4 col-form-label" for="basic-default-company">User Type</label>
-              <div class="col-sm-8">
+              <label class="col-sm-4 col-form-label" for="basic-default-company">User Type:  <strong> {{ $user->user_type }} </strong></label>
+              <!-- <div class="col-sm-8">
                 <input type="text" class="form-control" id="basic-default-company" name="user_type" value="{{ $user->user_type }}" readonly>
                 @error('user_type')
                     <span class="text-danger small font-weight-bold d-block mt-1">{{ $message }}</span>
                 @enderror
-              </div>
+              </div> -->
             </div>
 
             
